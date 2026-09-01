@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendário Tiagox - Rita</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+:root {
+  --bg: #0f0e17;
+  --bg2: #16151f;
+  --bg3: #1e1c2a;
+  --bg4: #252336;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0eeff;
+  --text2: #9d99b8;
+  --text3: #5f5c7a;
+  --accent: #7c6af7;
+  --accent2: #a594f9;
+  --accent-glow: rgba(124,106,247,0.18);
+  --pink: #e879a0;
+  --teal: #34d399;
+  --amber: #fbbf24;
+  --coral: #f87171;
+  --sky: #60a5fa;
+  --r: 10px;
+  --r2: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ── BACKGROUND ─────────────────────────────── */
+.bg-canvas {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18;
+}
+.orb1 { width: 500px; height: 500px; background: #7c6af7; top: -120px; left: -80px; animation: drift 18s ease-in-out infinite alternate; }
+.orb2 { width: 400px; height: 400px; background: #e879a0; bottom: -100px; right: -60px; animation: drift 14s ease-in-out infinite alternate-reverse; }
+.orb3 { width: 300px; height: 300px; background: #34d399; top: 40%; left: 35%; animation: drift 22s ease-in-out infinite alternate; }
+@keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,20px) scale(1.08); } }
+
+.grid-lines {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ── LAYOUT ─────────────────────────────────── */
+.shell { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100vh; }
+
+/* ── TOPBAR ──────────────────────────────────── */
+.topbar {
+  display: flex; align-items: center; gap: 0; padding: 0 20px;
+  height: 54px; border-bottom: 1px solid var(--border);
+  background: rgba(15,14,23,0.8); backdrop-filter: blur(16px);
+  flex-shrink: 0;
+}
+.logo { display: flex; align-items: center; gap: 10px; margin-right: 24px; }
+.logo-mark {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 16px; color: #fff;
+}
+.logo-name { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+.logo-sub { font-size: 11px; color: var(--text2); font-weight: 400; }
+
+.nav-tabs { display: flex; gap: 2px; flex: 1; }
+.nav-tab {
+  display: flex; align-items: center; gap: 6px; padding: 6px 14px;
+  border-radius: var(--r); font-size: 12px; color: var(--text2);
+  cursor: pointer; border: none; background: none; transition: all 0.15s;
+}
+.nav-tab:hover { background: var(--bg4); color: var(--text); }
+.nav-tab.active { background: var(--accent-glow); color: var(--accent2); border: 1px solid rgba(124,106,247,0.25); }
+.nav-tab i { font-size: 15px; }
+
+.topbar-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600;
+}
+.notif-btn {
+  position: relative; width: 30px; height: 30px; border-radius: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text2); font-size: 15px;
+}
+.notif-badge {
+  position: absolute; top: -3px; right: -3px; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--coral); border: 2px solid var(--bg);
+  font-size: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;
+}
+
+/* ── MAIN AREA ───────────────────────────────── */
+.main { display: flex; flex: 1; min-height: 0; }
+
+/* ── LEFT SIDEBAR (Kanban) ───────────────────── */
+.sidebar {
+  width: 256px; min-width: 220px; flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  background: rgba(22,21,31,0.7); backdrop-filter: blur(10px);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--border); }
+.sidebar-header h2 { font-size: 11px; font-weight: 500; color: var(--text3); letter-spacing: 0.5px; text-transform: uppercase; }
+.sidebar-search {
+  margin: 10px 12px 0; position: relative;
+}
+.sidebar-search input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 10px 6px 30px; font-size: 12px; color: var(--text);
+  outline: none;
+}
+.sidebar-search input::placeholder { color: var(--text3); }
+.sidebar-search input:focus { border-color: var(--accent); }
+.sidebar-search i { position: absolute; left: 9px; top: 7px; font-size: 14px; color: var(--text3); }
+
+.kanban-scroll { flex: 1; overflow-y: auto; padding: 8px 0 16px; }
+.kanban-scroll::-webkit-scrollbar { width: 4px; }
+.kanban-scroll::-webkit-scrollbar-track { background: transparent; }
+.kanban-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.cat-section { margin: 0 8px 2px; }
+.cat-toggle {
+  display: flex; align-items: center; gap: 8px; padding: 7px 8px;
+  border-radius: var(--r); cursor: pointer; color: var(--text2);
+  font-size: 11px; font-weight: 500; background: none; border: none; width: 100%;
+  text-align: left; transition: background 0.12s;
+}
+.cat-toggle:hover { background: var(--bg4); }
+.cat-toggle i.cat-icon { font-size: 14px; }
+.cat-toggle .chevron { margin-left: auto; font-size: 12px; transition: transform 0.2s; }
+.cat-toggle.open .chevron { transform: rotate(90deg); }
+.cat-count { font-size: 10px; background: var(--bg4); border-radius: 4px; padding: 1px 5px; color: var(--text3); }
+
+.task-items { padding: 2px 0 4px; display: none; }
+.cat-toggle.open + .task-items { display: flex; flex-direction: column; gap: 3px; }
+
+.task-chip {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 4px; padding: 6px 9px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; cursor: grab; transition: all 0.12s;
+  font-size: 12px; color: var(--text);
+}
+.task-chip:hover { border-color: var(--border2); background: var(--bg4); transform: translateX(2px); }
+.task-chip:active { cursor: grabbing; opacity: 0.6; }
+.task-chip .chip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.task-chip .chip-dur { margin-left: auto; font-size: 10px; color: var(--text3); white-space: nowrap; }
+.task-chip .chip-grip { font-size: 12px; color: var(--text3); opacity: 0; }
+.task-chip:hover .chip-grip { opacity: 1; }
+
+/* ── CENTER (Calendar) ───────────────────────── */
+.center { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+
+.cal-header {
+  display: flex; align-items: center; gap: 12px; padding: 12px 18px 10px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+  background: rgba(15,14,23,0.5);
+}
+.cal-header h2 { font-size: 15px; font-weight: 600; }
+.week-nav { display: flex; gap: 4px; }
+.week-nav button, .today-btn {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 10px; color: var(--text2);
+  cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;
+  transition: all 0.12s;
+}
+.week-nav button:hover, .today-btn:hover { background: var(--bg4); border-color: var(--border2); color: var(--text); }
+.today-btn { padding: 5px 12px; color: var(--accent2); border-color: rgba(124,106,247,0.3); }
+
+.cal-grid { flex: 1; overflow: auto; }
+.cal-grid::-webkit-scrollbar { width: 4px; height: 4px; }
+.cal-grid::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.grid-wrap { display: grid; grid-template-columns: 52px repeat(7, 1fr); min-width: 700px; }
+
+.corner, .day-head {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(15,14,23,0.95); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.corner { border-right: 1px solid var(--border); }
+.day-head {
+  padding: 10px 4px 8px; text-align: center;
+  border-left: 1px solid var(--border);
+}
+.day-head .d-name { font-size: 10px; color: var(--text3); font-weight: 400; letter-spacing: 0.3px; }
+.day-head .d-num { font-size: 18px; font-weight: 600; line-height: 1.2; margin-top: 2px; }
+.day-head.is-today .d-num {
+  background: var(--accent); color: #fff; width: 32px; height: 32px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  margin: 2px auto 0; font-size: 15px;
+}
+
+.time-row { display: contents; }
+.time-cell {
+  border-right: 1px solid var(--border); border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex; align-items: flex-start; justify-content: flex-end;
+  padding: 3px 8px 0 0; font-size: 10px; color: var(--text3); height: 52px;
+}
+.drop-cell {
+  height: 52px; border-left: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  position: relative; transition: background 0.1s;
+}
+.drop-cell.over { background: var(--accent-glow); }
+.drop-cell.over::after {
+  content: ''; position: absolute; inset: 2px; border: 1px dashed rgba(124,106,247,0.5); border-radius: 6px;
+}
+
+.cal-event {
+  position: absolute; left: 3px; right: 3px; top: 3px; bottom: 3px;
+  border-radius: 7px; padding: 4px 7px;
+  font-size: 10px; font-weight: 500; color: #fff;
+  display: flex; flex-direction: column; justify-content: space-between;
+  overflow: hidden; cursor: default; z-index: 2;
+}
+.cal-event::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: rgba(255,255,255,0.35); border-radius: 7px 0 0 7px;
+}
+.cal-event .ev-name { line-height: 1.3; }
+.cal-event .ev-dur { font-size: 9px; opacity: 0.75; }
+.cal-event .ev-x {
+  position: absolute; right: 4px; top: 3px; opacity: 0;
+  cursor: pointer; font-size: 12px; line-height: 1; background: none; border: none; color: white;
+}
+.cal-event:hover .ev-x { opacity: 0.8; }
+.cal-event .ev-x:hover { opacity: 1 !important; }
+
+/* ── RIGHT PANEL ─────────────────────────────── */
+.right-panel {
+  width: 270px; min-width: 240px; flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  background: rgba(22,21,31,0.7); backdrop-filter: blur(10px);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+.rp-tabs { display: flex; border-bottom: 1px solid var(--border); }
+.rp-tab {
+  flex: 1; padding: 10px 4px; text-align: center; font-size: 11px;
+  color: var(--text3); cursor: pointer; border: none; background: none;
+  border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.rp-tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+.rp-tab i { display: block; font-size: 16px; margin-bottom: 2px; }
+
+.rp-content { flex: 1; overflow-y: auto; }
+.rp-content::-webkit-scrollbar { width: 4px; }
+.rp-content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.rp-panel { display: none; flex-direction: column; height: 100%; }
+.rp-panel.active { display: flex; }
+
+/* AI TAB */
+.ai-section { padding: 14px; border-bottom: 1px solid var(--border); }
+.ai-section label { display: block; font-size: 10px; color: var(--text3); font-weight: 500; letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 6px; }
+.ai-select, .ai-input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 10px; font-size: 12px; color: var(--text);
+  outline: none; font-family: 'Inter', sans-serif;
+}
+.ai-select:focus, .ai-input:focus { border-color: rgba(124,106,247,0.5); }
+
+.gen-btn {
+  width: 100%; margin-top: 10px; padding: 9px;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  border: none; border-radius: 9px; color: #fff; font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.gen-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.gen-btn:active { transform: translateY(0); }
+.gen-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.gen-btn i { font-size: 16px; }
+
+.ai-out-area { flex: 1; padding: 10px 14px 14px; overflow-y: auto; }
+.ai-placeholder { color: var(--text3); font-size: 11px; text-align: center; padding: 24px 0; line-height: 1.7; }
+.ai-placeholder i { display: block; font-size: 32px; margin-bottom: 8px; color: var(--accent); opacity: 0.4; }
+
+.ai-routine-block { margin-bottom: 6px; }
+.routine-card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px; display: flex; align-items: flex-start; gap: 8px;
+}
+.routine-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.routine-time { font-size: 10px; font-weight: 600; color: var(--accent2); margin-bottom: 1px; }
+.routine-name { font-size: 12px; color: var(--text); }
+.routine-dur { font-size: 10px; color: var(--text3); }
+
+.apply-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 8px; margin-top: 10px;
+  background: rgba(124,106,247,0.1); border: 1px solid rgba(124,106,247,0.3);
+  border-radius: 8px; color: var(--accent2); font-size: 12px; font-weight: 500;
+  cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s;
+}
+.apply-btn:hover { background: rgba(124,106,247,0.18); }
+
+/* SPINNER */
+.spin { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* EMAIL TAB */
+.email-compose { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.email-compose h3 { font-size: 12px; font-weight: 500; margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
+.email-compose h3 i { color: var(--sky); font-size: 15px; }
+.field-row { margin-bottom: 7px; }
+.field-row label { display: block; font-size: 10px; color: var(--text3); margin-bottom: 3px; }
+.field-row input, .field-row textarea {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 7px; padding: 6px 9px; font-size: 11px; color: var(--text);
+  outline: none; font-family: 'Inter', sans-serif; resize: none;
+}
+.field-row input:focus, .field-row textarea:focus { border-color: rgba(96,165,250,0.5); }
+.send-email-btn {
+  width: 100%; padding: 8px; background: rgba(96,165,250,0.12);
+  border: 1px solid rgba(96,165,250,0.3); border-radius: 8px;
+  color: var(--sky); font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: all 0.15s;
+}
+.send-email-btn:hover { background: rgba(96,165,250,0.2); }
+
+.email-sent { padding: 10px 14px; }
+.email-item {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  padding: 9px 10px; margin-bottom: 6px; cursor: pointer; transition: border-color 0.12s;
+}
+.email-item:hover { border-color: var(--border2); }
+.email-from { font-size: 11px; font-weight: 500; margin-bottom: 2px; }
+.email-subj { font-size: 11px; color: var(--text2); }
+.email-time { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.email-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-right: 5px; vertical-align: middle; }
+
+/* NOTIF TAB */
+.notif-section { padding: 12px 14px; }
+.notif-title { font-size: 12px; font-weight: 500; margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
+.notif-title i { color: var(--amber); font-size: 15px; }
+
+.notif-toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px; padding: 8px 10px;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+}
+.notif-toggle-row span { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 7px; }
+.notif-toggle-row i { font-size: 14px; }
+.toggle {
+  width: 34px; height: 20px; background: var(--bg4); border-radius: 10px;
+  position: relative; cursor: pointer; border: 1px solid var(--border); transition: background 0.2s;
+}
+.toggle.on { background: var(--accent); border-color: var(--accent); }
+.toggle::after {
+  content: ''; position: absolute; width: 14px; height: 14px;
+  background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: left 0.2s;
+}
+.toggle.on::after { left: 16px; }
+
+.notif-feed { margin-top: 12px; }
+.notif-feed-title { font-size: 10px; color: var(--text3); font-weight: 500; letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 7px; }
+.notif-item {
+  display: flex; gap: 9px; padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-icon {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+.notif-body { flex: 1; }
+.notif-msg { font-size: 11px; color: var(--text); line-height: 1.4; }
+.notif-when { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+.sched-btn {
+  width: 100%; padding: 8px; background: rgba(251,191,36,0.1);
+  border: 1px solid rgba(251,191,36,0.3); border-radius: 8px;
+  color: var(--amber); font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin-top: 12px; transition: all 0.15s;
+}
+.sched-btn:hover { background: rgba(251,191,36,0.18); }
+
+/* TOAST */
+.toast-area { position: fixed; top: 64px; right: 16px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--bg4); border: 1px solid var(--border2); border-radius: 10px;
+  padding: 10px 14px; font-size: 12px; color: var(--text);
+  display: flex; align-items: center; gap: 9px; min-width: 240px; max-width: 300px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  animation: slideIn 0.25s ease; pointer-events: auto;
+}
+.toast i { font-size: 16px; flex-shrink: 0; }
+.toast.success i { color: var(--teal); }
+.toast.info i { color: var(--sky); }
+.toast.warn i { color: var(--amber); }
+@keyframes slideIn { from { transform: translateX(60px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* STATUS BAR */
+.perm-banner {
+  position: fixed; top: 62px; left: 50%; transform: translateX(-50%);
+  z-index: 998; background: var(--bg4); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 12px 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  display: flex; align-items: center; gap: 12px; max-width: 420px;
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown { from { transform: translate(-50%,-16px); opacity: 0; } to { transform: translate(-50%,0); opacity: 1; } }
+.perm-banner i.pb-icon { font-size: 22px; color: var(--accent2); flex-shrink: 0; }
+.perm-banner .pb-text { font-size: 12px; color: var(--text); line-height: 1.5; }
+.perm-banner .pb-text b { font-weight: 600; }
+.perm-banner .pb-actions { display: flex; gap: 6px; margin-top: 8px; }
+.pb-btn { padding: 5px 12px; border-radius: 7px; font-size: 11px; cursor: pointer; border: none; font-family: 'Inter', sans-serif; font-weight: 500; }
+.pb-btn.allow { background: var(--accent); color: #fff; }
+.pb-btn.allow:hover { opacity: 0.9; }
+.pb-btn.dismiss { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+.pb-btn.dismiss:hover { background: var(--bg2); }
+
+/* SIMPLE VIEWS (Progresso / Metas) */
+.simple-view { align-items: center; justify-content: center; }
+.simple-view-inner { max-width: 380px; text-align: center; padding: 40px 20px; }
+.simple-view-inner h2 { font-size: 18px; font-weight: 600; margin: 12px 0 8px; }
+.simple-view-inner p { font-size: 12px; color: var(--text2); line-height: 1.7; }
+.progress-stub { display: flex; gap: 12px; margin-top: 20px; justify-content: center; }
+.pstub-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; }
+.pstub-num { font-size: 22px; font-weight: 700; color: var(--accent2); }
+.pstub-label { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* MOBILE BOTTOM NAV */
+.mobile-tabbar { display: none; }
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media (max-width: 860px) {
+  html, body { overflow: auto; height: auto; }
+  .shell { height: auto; min-height: 100vh; }
+
+  .topbar { padding: 0 12px; height: 50px; }
+  .nav-tabs { display: none; }
+  .logo-sub { display: none; }
+
+  .main { flex-direction: column; height: auto; padding-bottom: 60px; }
+
+  .sidebar, .right-panel { width: 100%; min-width: 0; border: none; }
+  .sidebar { display: none; border-bottom: 1px solid var(--border); }
+  .right-panel { display: none; border-top: 1px solid var(--border); }
+  .center { width: 100%; }
+
+  .sidebar.mobile-active, .right-panel.mobile-active, .center.mobile-active { display: flex; }
+  .center { display: none; }
+
+  .kanban-scroll { max-height: 70vh; }
+
+  .cal-grid { overflow-x: auto; }
+  .grid-wrap { min-width: 640px; }
+
+  .simple-view-inner { padding: 30px 16px; }
+
+  .statusbar { flex-wrap: wrap; height: auto; padding: 6px 12px; gap: 10px; position: fixed; bottom: 52px; left: 0; right: 0; z-index: 50; background: var(--bg); }
+  #time-display { display: none; }
+
+  .mobile-tabbar {
+    display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    background: rgba(15,14,23,0.97); backdrop-filter: blur(14px);
+    border-top: 1px solid var(--border); z-index: 100;
+  }
+  .mt-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; background: none; border: none; color: var(--text3); font-size: 9px;
+    font-family: 'Inter', sans-serif;
+  }
+  .mt-btn i { font-size: 19px; }
+  .mt-btn.active { color: var(--accent2); }
+
+  .toast-area { top: auto; bottom: 110px; right: 8px; left: 8px; align-items: center; }
+  .toast { max-width: none; width: 100%; }
+  .perm-banner { max-width: calc(100% - 24px); left: 12px; right: 12px; transform: none; top: 56px; }
+}
+
+@media (max-width: 480px) {
+  .day-head .d-num { font-size: 14px; }
+  .day-head { padding: 8px 2px 6px; }
+  .time-cell { font-size: 9px; padding-right: 4px; }
+  .cal-event { font-size: 9px; padding: 3px 5px; }
+}
+
+.statusbar {
+  height: 28px; border-top: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 16px; background: rgba(15,14,23,0.8); flex-shrink: 0;
+}
+.status-pill { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--text3); }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; }
+.status-dot.green { background: var(--teal); box-shadow: 0 0 6px rgba(52,211,153,0.5); }
+.status-dot.amber { background: var(--amber); }
+.status-dot.off { background: var(--text3); }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="grid-lines"></div>
+</div>
+
+<div class="shell">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-mark">R</div>
+      <div>
+        <div class="logo-name">Calendário Tiagox</div>
+        <div class="logo-sub">rotina da Rita</div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-view="semana"><i class="ti ti-calendar-week"></i> Semana</button>
+      <button class="nav-tab" data-view="progresso"><i class="ti ti-chart-bar"></i> Progresso</button>
+      <button class="nav-tab" data-view="metas"><i class="ti ti-target"></i> Metas</button>
+    </div>
+    <div class="topbar-right">
+      <div class="notif-btn" id="notif-btn" title="Notificações">
+        <i class="ti ti-bell"></i>
+        <div class="notif-badge" id="notif-badge">3</div>
+      </div>
+      <div class="avatar">RI</div>
+    </div>
+  </div>
+
+  <div class="main" id="view-semana">
+    <!-- SIDEBAR KANBAN -->
+    <div class="sidebar">
+      <div class="sidebar-header"><h2>tarefas & hobbies</h2></div>
+      <div class="sidebar-search">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="Filtrar..." id="search-input">
+      </div>
+      <div class="kanban-scroll" id="kanban"></div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="center">
+      <div class="cal-header">
+        <h2 id="week-label">–</h2>
+        <div class="week-nav">
+          <button id="prev-btn"><i class="ti ti-chevron-left"></i></button>
+          <button class="today-btn" id="today-btn">Hoje</button>
+          <button id="next-btn"><i class="ti ti-chevron-right"></i></button>
+        </div>
+        <div style="margin-left:auto;font-size:11px;color:var(--text3);">
+          <i class="ti ti-drag-drop" style="vertical-align:-2px;margin-right:4px;"></i>Arrastra para agendar
+        </div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="rp-tabs">
+        <button class="rp-tab active" data-tab="ai">
+          <i class="ti ti-sparkles"></i>IA rotina
+        </button>
+        <button class="rp-tab" data-tab="email">
+          <i class="ti ti-mail"></i>Email
+        </button>
+        <button class="rp-tab" data-tab="notif">
+          <i class="ti ti-bell"></i>Push
+        </button>
+      </div>
+
+      <!-- AI PANEL -->
+      <div class="rp-panel active" id="tab-ai">
+        <div class="ai-section">
+          <label>Objetivo</label>
+          <select class="ai-select" id="ai-goal">
+            <option>Equilibrada (trabalho + saúde)</option>
+            <option>Foco na faculdade</option>
+            <option>Foco no negócio</option>
+            <option>Saúde & desporto</option>
+            <option>Produtividade máxima</option>
+            <option>Descanso & recuperação</option>
+          </select>
+        </div>
+        <div class="ai-section">
+          <label>Dia</label>
+          <select class="ai-select" id="ai-day">
+            <option>Segunda</option><option>Terça</option><option>Quarta</option>
+            <option>Quinta</option><option>Sexta</option><option>Sábado</option><option>Domingo</option>
+          </select>
+        </div>
+        <div class="ai-section">
+          <label>Notas pessoais</label>
+          <input class="ai-input" id="ai-notes" type="text" placeholder="ex: ginásio de manhã, reunião às 15h">
+          <button class="gen-btn" id="gen-btn" style="margin-top:10px;">
+            <i class="ti ti-sparkles"></i> Gerar rotina com IA
+          </button>
+        </div>
+        <div class="ai-out-area" id="ai-out">
+          <div class="ai-placeholder">
+            <i class="ti ti-robot"></i>
+            A IA cria uma rotina personalizada para ti com base no objetivo e dia escolhidos.
+          </div>
+        </div>
+      </div>
+
+      <!-- EMAIL PANEL -->
+      <div class="rp-panel" id="tab-email">
+        <div class="email-compose">
+          <h3><i class="ti ti-send"></i>Enviar rotina por email</h3>
+          <div class="field-row"><label>Para</label><input id="email-to" type="email" value="projetostiago98@gmail.com"></div>
+          <div class="field-row"><label>Assunto</label><input id="email-subj" type="text" placeholder="A minha rotina semanal" value="A rotina da Rita"></div>
+          <div class="field-row"><label>Mensagem</label><textarea id="email-body" rows="3" placeholder="Olá! Partilho a minha rotina desta semana..."></textarea></div>
+          <button class="send-email-btn" id="send-email-btn">
+            <i class="ti ti-send"></i> Abrir no email e enviar
+          </button>
+          <div style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.5;">
+            <i class="ti ti-info-circle" style="vertical-align:-1px;"></i> Abre o teu cliente de email (Gmail, Outlook, Mail) já preenchido. Confirma o envio lá — não existe backend aqui para enviar sozinho.
+          </div>
+        </div>
+        <div class="email-sent">
+          <div style="font-size:10px;color:var(--text3);font-weight:500;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:8px;">Recebidos</div>
+          <div class="email-item"><div class="email-from"><span class="email-dot"></span>Coach Ana</div><div class="email-subj">Plano de treinos — semana 36</div><div class="email-time">há 2h</div></div>
+          <div class="email-item"><div class="email-from"><span class="email-dot"></span>Faculdade ISCTE</div><div class="email-subj">Avaliação intermédia — prazo 15 set</div><div class="email-time">há 5h</div></div>
+          <div class="email-item"><div class="email-from">Mariana</div><div class="email-subj">Almoço domingo? ☀️</div><div class="email-time">ontem</div></div>
+          <div class="email-item"><div class="email-from">Newsletter Saúde</div><div class="email-subj">5 hábitos para dormir melhor</div><div class="email-time">ontem</div></div>
+        </div>
+      </div>
+
+      <!-- NOTIF PANEL -->
+      <div class="rp-panel" id="tab-notif">
+        <div class="notif-section">
+          <div class="notif-title"><i class="ti ti-device-mobile"></i>Notificações push</div>
+          <div class="notif-toggle-row">
+            <span><i class="ti ti-barbell"></i>Lembrete de treino</span>
+            <div class="toggle on" data-key="treino"></div>
+          </div>
+          <div class="notif-toggle-row">
+            <span><i class="ti ti-school"></i>Hora de estudar</span>
+            <div class="toggle on" data-key="estudo"></div>
+          </div>
+          <div class="notif-toggle-row">
+            <span><i class="ti ti-droplet"></i>Beber água</span>
+            <div class="toggle on" data-key="agua"></div>
+          </div>
+          <div class="notif-toggle-row">
+            <span><i class="ti ti-moon"></i>Rotina noturna</span>
+            <div class="toggle" data-key="noite"></div>
+          </div>
+          <div class="notif-toggle-row">
+            <span><i class="ti ti-brain"></i>Pausa mindfulness</span>
+            <div class="toggle" data-key="mind"></div>
+          </div>
+          <button class="sched-btn" id="perm-btn">
+            <i class="ti ti-device-mobile"></i> Activar notificações neste dispositivo
+          </button>
+          <button class="sched-btn" id="sched-btn" style="margin-top:6px;">
+            <i class="ti ti-clock"></i> Agendar notificações do calendário
+          </button>
+          <div style="font-size:10px;color:var(--text3);margin-top:8px;line-height:1.6;">
+            <i class="ti ti-info-circle" style="vertical-align:-1px;"></i> Notificações reais do sistema, no browser deste dispositivo (telemóvel ou computador). Mantém esta página aberta — sem app instalada ou servidor, o browser não pode acordar sozinho para enviar push quando a página está fechada.
+          </div>
+          <div class="notif-feed" id="notif-feed">
+            <div class="notif-feed-title">recentes</div>
+            <div class="notif-item">
+              <div class="notif-icon" style="background:rgba(124,106,247,0.15);color:var(--accent2)"><i class="ti ti-barbell"></i></div>
+              <div class="notif-body"><div class="notif-msg">Hora do treino! Sessão de força agendada.</div><div class="notif-when">há 20 min</div></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon" style="background:rgba(96,165,250,0.15);color:var(--sky)"><i class="ti ti-droplet"></i></div>
+              <div class="notif-body"><div class="notif-msg">Já bebeste 1L de água hoje?</div><div class="notif-when">há 1h</div></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon" style="background:rgba(251,191,36,0.15);color:var(--amber)"><i class="ti ti-school"></i></div>
+              <div class="notif-body"><div class="notif-msg">Bloco de estudo em 15 min.</div><div class="notif-when">há 3h</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main simple-view" id="view-progresso" style="display:none;">
+    <div class="simple-view-inner">
+      <i class="ti ti-chart-bar" style="font-size:40px;color:var(--accent2);opacity:0.5;"></i>
+      <h2>Progresso</h2>
+      <p>Aqui vais poder acompanhar quantas tarefas concluis por semana, streaks de treino e estudo, e a evolução dos teus hábitos. Em breve.</p>
+      <div class="progress-stub">
+        <div class="pstub-card"><div class="pstub-num" id="pstub-total">0</div><div class="pstub-label">tarefas agendadas</div></div>
+        <div class="pstub-card"><div class="pstub-num" id="pstub-cats">0</div><div class="pstub-label">categorias usadas</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main simple-view" id="view-metas" style="display:none;">
+    <div class="simple-view-inner">
+      <i class="ti ti-target" style="font-size:40px;color:var(--pink);opacity:0.5;"></i>
+      <h2>Metas</h2>
+      <p>Define objetivos semanais ou mensais (ex: treinar 4x, estudar 10h) e acompanha-os aqui. Em breve.</p>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <div class="status-pill"><div class="status-dot green"></div>IA conectada</div>
+    <div class="status-pill" id="push-status"><div class="status-dot amber" id="push-dot"></div>Push — pendente</div>
+    <div class="status-pill" id="email-status"><div class="status-dot off" id="email-dot"></div>Email — offline</div>
+    <div style="margin-left:auto;font-size:10px;color:var(--text3);" id="time-display"></div>
+  </div>
+  <div class="mobile-tabbar" id="mobile-tabbar">
+    <button class="mt-btn active" data-mtab="kanban"><i class="ti ti-list-check"></i>Tarefas</button>
+    <button class="mt-btn" data-mtab="cal"><i class="ti ti-calendar-week"></i>Calendário</button>
+    <button class="mt-btn" data-mtab="ai"><i class="ti ti-sparkles"></i>IA</button>
+  </div>
+</div>
+
+<div class="toast-area" id="toast-area"></div>
+<div class="perm-banner" id="perm-banner" style="display:none;">
+  <i class="ti ti-bell-ringing pb-icon"></i>
+  <div>
+    <div class="pb-text"><b>Calendário Tiagox</b> quer enviar-te notificações das tarefas da Rita.</div>
+    <div class="pb-actions">
+      <button class="pb-btn allow" id="pb-allow">Permitir</button>
+      <button class="pb-btn dismiss" id="pb-dismiss">Agora não</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────
+const CATS = [
+  { id:"manha", name:"Manhã", icon:"ti-sun", color:"#F59E0B", tasks:[
+    {n:"Acordar cedo",d:"—"},{n:"Meditação",d:"10m"},{n:"Journaling",d:"15m"},
+    {n:"Leitura matinal",d:"20m"},{n:"Banho frio",d:"5m"},{n:"Alongamentos",d:"10m"}
+  ]},
+  { id:"ginasio", name:"Ginásio & Desporto", icon:"ti-barbell", color:"#7c6af7", tasks:[
+    {n:"Treino de força",d:"60m"},{n:"Cardio / corrida",d:"30m"},{n:"Yoga",d:"45m"},
+    {n:"Pilates",d:"50m"},{n:"Natação",d:"45m"},{n:"Caminhada",d:"30m"},
+    {n:"Futebol",d:"90m"},{n:"Ténis",d:"60m"},{n:"Ciclismo",d:"60m"},{n:"HIIT",d:"30m"}
+  ]},
+  { id:"facu", name:"Faculdade", icon:"ti-school", color:"#60a5fa", tasks:[
+    {n:"Estudar",d:"2h"},{n:"Rever apontamentos",d:"45m"},{n:"Trabalho de grupo",d:"1h30"},
+    {n:"Preparar apresentação",d:"1h"},{n:"Pesquisa académica",d:"1h"},{n:"Aula presencial",d:"2h"}
+  ]},
+  { id:"negocio", name:"Negócio", icon:"ti-briefcase", color:"#34d399", tasks:[
+    {n:"Email & comunicação",d:"30m"},{n:"Reunião de equipa",d:"1h"},{n:"Planeamento semanal",d:"45m"},
+    {n:"Análise de métricas",d:"30m"},{n:"Criar conteúdo",d:"1h"},{n:"Gestão financeira",d:"30m"},
+    {n:"Prospecção / vendas",d:"1h"},{n:"Redes sociais",d:"30m"}
+  ]},
+  { id:"diaria", name:"Tarefas diárias", icon:"ti-checkbox", color:"#a594f9", tasks:[
+    {n:"Pequeno-almoço",d:"20m"},{n:"Almoço",d:"30m"},{n:"Jantar",d:"30m"},
+    {n:"Arrumar casa",d:"20m"},{n:"Compras",d:"45m"},{n:"Preparar refeições",d:"45m"},
+    {n:"Roupa & higiene",d:"20m"}
+  ]},
+  { id:"hobby", name:"Hobbies & lazer", icon:"ti-palette", color:"#e879a0", tasks:[
+    {n:"Leitura",d:"30m"},{n:"Música / tocar",d:"30m"},{n:"Sair com amigos",d:"2h"},
+    {n:"Séries / filme",d:"1h"},{n:"Cozinhar",d:"45m"},{n:"Fotografia",d:"1h"},
+    {n:"Dança",d:"1h"},{n:"Desenho / arte",d:"45m"},{n:"Podcast",d:"30m"},
+    {n:"Videojogos",d:"1h"},{n:"Jardinagem",d:"30m"},{n:"Crochê",d:"45m"}
+  ]},
+  { id:"bemestar", name:"Bem-estar", icon:"ti-heart", color:"#f87171", tasks:[
+    {n:"Skincare",d:"15m"},{n:"Descanso / soneca",d:"20m"},{n:"Respiração",d:"10m"},
+    {n:"Banho relaxante",d:"30m"},{n:"Chamada com família",d:"30m"},{n:"Cuidar da planta",d:"10m"}
+  ]},
+  { id:"transportes", name:"Transportes", icon:"ti-car", color:"#38bdf8", tasks:[
+    {n:"Ir de carro",d:"—"},{n:"Apanhar autocarro",d:"—"},{n:"Metro / comboio",d:"—"},
+    {n:"Boleia partilhada",d:"—"},{n:"Ir a pé",d:"20m"},{n:"Bicicleta",d:"—"},
+    {n:"Trotinete",d:"—"},{n:"Levar/buscar alguém",d:"30m"}
+  ]},
+  { id:"motion", name:"Motion Graphics", icon:"ti-video", color:"#fb923c", tasks:[
+    {n:"Editar vídeo",d:"1h30"},{n:"Animar logótipo",d:"1h"},{n:"Criar template",d:"45m"},
+    {n:"Renderizar projeto",d:"—"},{n:"Storyboard",d:"45m"},{n:"Cortes / trailers",d:"1h"},
+    {n:"After Effects",d:"1h30"},{n:"Motion para redes sociais",d:"1h"}
+  ]},
+  { id:"noite", name:"Noite", icon:"ti-moon", color:"#4F46E5", tasks:[
+    {n:"Planear dia seguinte",d:"10m"},{n:"Leitura noturna",d:"20m"},
+    {n:"Sem ecrãs",d:"30m"},{n:"Deitar cedo",d:"—"},{n:"Gratidão",d:"5m"}
+  ]}
+];
+
+const HOURS = Array.from({length:18},(_,i)=>i+6);
+const DAYS_PT = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+const MONTHS_PT = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const DAYS_FULL = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+const CAT_COLORS = {manhã:"#F59E0B",ginásio:"#7c6af7",faculdade:"#60a5fa",negócio:"#34d399",diária:"#a594f9",hobby:"#e879a0","bem-estar":"#f87171",noite:"#4F46E5"};
+
+let weekOff = 0;
+let dragData = null;
+let calData = {};
+let aiRoutine = [];
+
+// ── KANBAN ──────────────────────────────────────
+function buildKanban(filter="") {
+  const el = document.getElementById("kanban");
+  el.innerHTML = "";
+  CATS.forEach(cat => {
+    const tasks = cat.tasks.filter(t => !filter || t.n.toLowerCase().includes(filter.toLowerCase()));
+    const sec = document.createElement("div");
+    sec.className = "cat-section";
+    const btn = document.createElement("button");
+    btn.className = "cat-toggle" + (filter ? " open" : "");
+    btn.innerHTML = `<i class="ti ${cat.icon} cat-icon" style="color:${cat.color}"></i>${cat.name}<span class="cat-count">${tasks.length}</span><i class="ti ti-chevron-right chevron"></i>`;
+    btn.addEventListener("click", () => btn.classList.toggle("open"));
+    sec.appendChild(btn);
+    const list = document.createElement("div");
+    list.className = "task-items";
+    tasks.forEach(t => {
+      const chip = document.createElement("div");
+      chip.className = "task-chip";
+      chip.draggable = true;
+      chip.dataset.name = t.n; chip.dataset.dur = t.d; chip.dataset.color = cat.color;
+      chip.innerHTML = `<i class="ti ti-grip-vertical chip-grip"></i><div class="chip-dot" style="background:${cat.color}"></div><span>${t.n}</span><span class="chip-dur">${t.d}</span>`;
+      chip.addEventListener("dragstart", e => {
+        dragData = {name:t.n,dur:t.d,color:cat.color};
+        e.dataTransfer.effectAllowed = "copy";
+      });
+      list.appendChild(chip);
+    });
+    sec.appendChild(list);
+    el.appendChild(sec);
+  });
+}
+
+document.getElementById("search-input").addEventListener("input", e => buildKanban(e.target.value));
+
+// ── CALENDAR ────────────────────────────────────
+function getWeekDates() {
+  const now = new Date();
+  const dow = now.getDay();
+  const mon = new Date(now);
+  mon.setDate(now.getDate() - (dow===0?6:dow-1) + weekOff*7);
+  return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
+}
+
+function buildCalendar() {
+  const dates = getWeekDates();
+  const today = new Date();
+  document.getElementById("week-label").textContent =
+    `${dates[0].getDate()} ${MONTHS_PT[dates[0].getMonth()]} — ${dates[6].getDate()} ${MONTHS_PT[dates[6].getMonth()]}`;
+
+  const grid = document.getElementById("cal-grid");
+  grid.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "grid-wrap";
+
+  // Corner
+  const corner = document.createElement("div");
+  corner.className = "corner";
+  wrap.appendChild(corner);
+
+  // Day headers
+  dates.forEach((d,i) => {
+    const h = document.createElement("div");
+    h.className = "day-head" + (d.toDateString()===today.toDateString()?" is-today":"");
+    h.innerHTML = `<div class="d-name">${DAYS_PT[d.getDay()]}</div><div class="d-num">${d.getDate()}</div>`;
+    wrap.appendChild(h);
+  });
+
+  // Hours
+  HOURS.forEach(h => {
+    const tc = document.createElement("div");
+    tc.className = "time-cell";
+    tc.textContent = h+":00";
+    wrap.appendChild(tc);
+    dates.forEach((d,di) => {
+      const cell = document.createElement("div");
+      cell.className = "drop-cell";
+      cell.dataset.di = di; cell.dataset.h = h;
+      const key = `${di}-${h}`;
+      if(calData[key]) {
+        const ev = document.createElement("div");
+        ev.className = "cal-event";
+        ev.style.background = calData[key].color;
+        ev.innerHTML = `<button class="ev-x" data-key="${key}">×</button><div class="ev-name">${calData[key].name}</div><div class="ev-dur">${calData[key].dur}</div>`;
+        ev.querySelector(".ev-x").addEventListener("click", e=>{e.stopPropagation();delete calData[key];buildCalendar();});
+        cell.appendChild(ev);
+      }
+      cell.addEventListener("dragover", e=>{e.preventDefault();cell.classList.add("over");});
+      cell.addEventListener("dragleave", ()=>cell.classList.remove("over"));
+      cell.addEventListener("drop", e=>{
+        e.preventDefault(); cell.classList.remove("over");
+        if(dragData){calData[key]={...dragData};buildCalendar();toast("Tarefa agendada ✓","success");dragData=null;}
+      });
+      wrap.appendChild(cell);
+    });
+  });
+  grid.appendChild(wrap);
+}
+
+document.getElementById("prev-btn").addEventListener("click",()=>{weekOff--;buildCalendar();});
+document.getElementById("next-btn").addEventListener("click",()=>{weekOff++;buildCalendar();});
+document.getElementById("today-btn").addEventListener("click",()=>{weekOff=0;buildCalendar();});
+
+// ── RP TABS ─────────────────────────────────────
+document.querySelectorAll(".rp-tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".rp-tab").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".rp-panel").forEach(p=>p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
+  });
+});
+
+// ── AI ──────────────────────────────────────────
+document.getElementById("gen-btn").addEventListener("click", async () => {
+  const goal = document.getElementById("ai-goal").value;
+  const day = document.getElementById("ai-day").value;
+  const notes = document.getElementById("ai-notes").value;
+  const btn = document.getElementById("gen-btn");
+  const out = document.getElementById("ai-out");
+
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spin"></div> A gerar...`;
+  out.innerHTML = `<div class="ai-placeholder"><div class="spin" style="width:24px;height:24px;border-width:3px;margin:0 auto 12px;"></div>A personalizar a rotina da Rita...</div>`;
+
+  const sys = `És um assistente de produtividade pessoal para a Rita.
+Crias rotinas diárias detalhadas, práticas e motivadoras, em português de Portugal.
+Responde APENAS com JSON válido. Sem texto adicional, sem markdown, sem backticks, sem explicações.
+Formato exato: {"routine":[{"time":"07:00","task":"string","duration":"string","category":"string","emoji":"string"}]}
+Cria 12 a 15 atividades cobrindo o dia das 6h às 23h.
+Categorias possíveis (exactamente assim): manhã, ginásio, faculdade, negócio, diária, hobby, bem-estar, noite.
+Adapta SEMPRE ao objetivo e às notas pessoais fornecidas.`;
+
+  const usr = `Cria a rotina de ${day} para a Rita.
+Objetivo: ${goal}
+${notes ? "Notas: " + notes : ""}
+Devolve apenas o JSON.`;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-6",
+        max_tokens:1200,
+        system: sys,
+        messages:[{role:"user",content:usr}]
+      })
+    });
+    if(!res.ok) throw new Error("API "+res.status);
+    const data = await res.json();
+    let raw = (data.content||[]).map(b=>b.text||"").join("").trim();
+    // strip any markdown fences
+    raw = raw.replace(/^```json?\s*/i,"").replace(/```\s*$/,"").trim();
+    // extract JSON object if wrapped
+    const start = raw.indexOf("{"); const end = raw.lastIndexOf("}");
+    if(start>-1&&end>-1) raw = raw.slice(start,end+1);
+    const parsed = JSON.parse(raw);
+    aiRoutine = parsed.routine || [];
+    renderAIRoutine(day, goal);
+    toast("Rotina gerada com sucesso","success");
+  } catch(e) {
+    out.innerHTML = `<div class="ai-placeholder"><i class="ti ti-alert-circle" style="color:var(--coral);"></i>Erro ao gerar. Verifica a ligação e tenta novamente.<br><small style="color:var(--text3);font-size:10px;">${e.message}</small></div>`;
+    toast("Erro ao gerar rotina","warn");
+  }
+  btn.disabled = false;
+  btn.innerHTML = `<i class="ti ti-sparkles"></i> Gerar rotina com IA`;
+});
+
+function renderAIRoutine(day, goal) {
+  const out = document.getElementById("ai-out");
+  const cols = {manhã:"#F59E0B",ginásio:"#7c6af7",faculdade:"#60a5fa",negócio:"#34d399",diária:"#a594f9",hobby:"#e879a0","bem-estar":"#f87171",noite:"#4F46E5"};
+  out.innerHTML = `<div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px;"><i class="ti ti-calendar-check" style="color:var(--accent2);font-size:14px;"></i>${day} · ${goal.split(" ")[0]}</div>`;
+  aiRoutine.forEach(item => {
+    const c = cols[item.category] || "#7c6af7";
+    const d = document.createElement("div");
+    d.className = "ai-routine-block";
+    d.innerHTML = `<div class="routine-card"><div class="routine-dot" style="background:${c}"></div><div><div class="routine-time">${item.time} · ${item.duration}</div><div class="routine-name">${item.emoji||""} ${item.task}</div></div></div>`;
+    out.appendChild(d);
+  });
+  const applyBtn = document.createElement("button");
+  applyBtn.className = "apply-btn";
+  applyBtn.innerHTML = `<i class="ti ti-calendar-plus"></i> Aplicar no calendário`;
+  applyBtn.addEventListener("click", () => applyRoutine(day));
+  out.appendChild(applyBtn);
+}
+
+function applyRoutine(day) {
+  const di = DAYS_FULL.indexOf(day);
+  const dates = getWeekDates();
+  const colIdx = dates.findIndex(d => d.getDay() === (di === -1 ? 1 : di));
+  if(colIdx === -1){ toast("Dia não encontrado nesta semana","warn"); return; }
+  const cols = {manhã:"#F59E0B",ginásio:"#7c6af7",faculdade:"#60a5fa",negócio:"#34d399",diária:"#a594f9",hobby:"#e879a0","bem-estar":"#f87171",noite:"#4F46E5"};
+  aiRoutine.forEach(item => {
+    const h = parseInt(item.time.split(":")[0]);
+    if(h>=6&&h<=23){ calData[`${colIdx}-${h}`]={name:item.task,dur:item.duration,color:cols[item.category]||"#7c6af7"}; }
+  });
+  buildCalendar();
+  toast("Rotina aplicada ao calendário","success");
+}
+
+// ── EMAIL (mailto real) ──────────────────────────
+function buildRoutineText() {
+  if(aiRoutine.length){
+    return aiRoutine.map(i => `${i.time} · ${i.task} (${i.duration})`).join("\n");
+  }
+  const keys = Object.keys(calData);
+  if(!keys.length) return "(ainda sem tarefas agendadas)";
+  return keys.sort((a,b)=>{
+    const [da,ha]=a.split("-").map(Number), [db,hb]=b.split("-").map(Number);
+    return da-db || ha-hb;
+  }).map(k=>{
+    const [di,h]=k.split("-").map(Number);
+    return `${DAYS_PT[getWeekDates()[di].getDay()]} ${h}:00 — ${calData[k].name} (${calData[k].dur})`;
+  }).join("\n");
+}
+
+document.getElementById("send-email-btn").addEventListener("click", () => {
+  const to = document.getElementById("email-to").value.trim();
+  if(!to){ toast("Insere um endereço de email","warn"); return; }
+  const subj = document.getElementById("email-subj").value || "A rotina da Rita";
+  const userMsg = document.getElementById("email-body").value;
+  const body = (userMsg ? userMsg + "\n\n" : "") + "Rotina:\n" + buildRoutineText();
+  const mailto = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailto;
+  document.getElementById("email-dot").className = "status-dot green";
+  document.getElementById("email-status").innerHTML = `<div class="status-dot green"></div>Email aberto`;
+  toast("Cliente de email aberto — confirma o envio","info");
+});
+
+// ── TOGGLES ──────────────────────────────────────
+document.querySelectorAll(".toggle").forEach(t => {
+  t.addEventListener("click", () => {
+    t.classList.toggle("on");
+    const key = t.dataset.key;
+    const on = t.classList.contains("on");
+    const labels = {treino:"Treino",estudo:"Estudo",agua:"Água",noite:"Rotina noturna",mind:"Mindfulness"};
+    toast(`Push "${labels[key]}" ${on?"activado":"desactivado"}`,on?"success":"info");
+  });
+});
+
+// ── REAL BROWSER NOTIFICATIONS ───────────────────
+let scheduledTimers = [];
+
+function fireNotification(title, body) {
+  if(!("Notification" in window)) { toast("Este browser não suporta notificações","warn"); return; }
+  if(Notification.permission === "granted") {
+    try {
+      // Prefer service worker registration (works better on Android/Chrome, incl. screen locked)
+      if(navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+        navigator.serviceWorker.getRegistration().then(reg => {
+          if(reg) reg.showNotification(title, {body, icon:"", badge:"", tag:"rita-"+Date.now()});
+          else new Notification(title, {body});
+        }).catch(()=> new Notification(title, {body}));
+      } else {
+        new Notification(title, {body});
+      }
+    } catch(e) { new Notification(title, {body}); }
+  }
+}
+
+// Register a tiny inline service worker so notifications can show even
+// when the tab is backgrounded on mobile Chrome/Android (best-effort;
+// iOS Safari and some browsers restrict this without a real PWA install).
+if("serviceWorker" in navigator) {
+  const swCode = `self.addEventListener('notificationclick', e => { e.notification.close(); });`;
+  try {
+    const blob = new Blob([swCode], {type:"application/javascript"});
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl).catch(()=>{});
+  } catch(e) {}
+}
+
+function askForPermission() {
+  if(!("Notification" in window)) { toast("Este browser não suporta notificações","warn"); return; }
+  Notification.requestPermission().then(p => {
+    document.getElementById("perm-banner").style.display = "none";
+    if(p === "granted") {
+      document.getElementById("push-dot").className = "status-dot green";
+      document.getElementById("push-status").innerHTML = `<div class="status-dot green"></div>Push activo`;
+      toast("Notificações activadas neste dispositivo","success");
+      fireNotification("Calendário Tiagox", "Notificações activadas! Vais receber lembretes das tarefas da Rita.");
+    } else if(p === "denied") {
+      document.getElementById("push-dot").className = "status-dot off";
+      document.getElementById("push-status").innerHTML = `<div class="status-dot off"></div>Push bloqueado`;
+      toast("Permissão negada — activa nas definições do browser","warn");
+    } else {
+      toast("Permissão de notificações não concedida","warn");
+    }
+  });
+}
+
+document.getElementById("perm-btn").addEventListener("click", askForPermission);
+document.getElementById("pb-allow").addEventListener("click", askForPermission);
+document.getElementById("pb-dismiss").addEventListener("click", () => {
+  document.getElementById("perm-banner").style.display = "none";
+  toast("Podes activar mais tarde no separador Push","info");
+});
+
+// O próprio projeto pede a permissão assim que a página carrega
+// (mostra um banner com o gesto de utilizador exigido pelos browsers).
+if("Notification" in window) {
+  if(Notification.permission === "default") {
+    setTimeout(() => { document.getElementById("perm-banner").style.display = "flex"; }, 900);
+  } else if(Notification.permission === "granted") {
+    document.getElementById("push-dot").className = "status-dot green";
+    document.getElementById("push-status").innerHTML = `<div class="status-dot green"></div>Push activo`;
+  } else if(Notification.permission === "denied") {
+    document.getElementById("push-dot").className = "status-dot off";
+    document.getElementById("push-status").innerHTML = `<div class="status-dot off"></div>Push bloqueado`;
+  }
+}
+
+document.getElementById("sched-btn").addEventListener("click", () => {
+  if(Notification.permission !== "granted") {
+    toast("Activa primeiro as notificações neste dispositivo","warn");
+    return;
+  }
+  scheduledTimers.forEach(t => clearTimeout(t));
+  scheduledTimers = [];
+
+  const dates = getWeekDates();
+  const now = new Date();
+  let count = 0;
+
+  Object.keys(calData).forEach(key => {
+    const [di, h] = key.split("-").map(Number);
+    const eventDate = new Date(dates[di]);
+    eventDate.setHours(h, 0, 0, 0);
+    const reminderTime = new Date(eventDate.getTime() - 5 * 60000); // 5 min before
+    const delay = reminderTime.getTime() - now.getTime();
+    if(delay > 0 && delay < 7 * 24 * 60 * 60000) {
+      const task = calData[key];
+      const timer = setTimeout(() => {
+        fireNotification("Daqui a 5 min: " + task.name, `${task.dur} · ${DAYS_PT[dates[di].getDay()]} às ${h}:00`);
+      }, delay);
+      scheduledTimers.push(timer);
+      count++;
+    }
+  });
+
+  if(count === 0) {
+    toast("Sem tarefas futuras nesta semana para agendar","warn");
+  } else {
+    toast(`${count} notificações agendadas (5 min antes de cada tarefa)`,"success");
+    fireNotification("Calendário Tiagox", `${count} lembretes agendados para esta semana.`);
+  }
+});
+
+// ── TOAST ────────────────────────────────────────
+function toast(msg, type="info") {
+  const icons = {success:"ti-circle-check",info:"ti-info-circle",warn:"ti-alert-triangle"};
+  const area = document.getElementById("toast-area");
+  const t = document.createElement("div");
+  t.className = `toast ${type}`;
+  t.innerHTML = `<i class="ti ${icons[type]}"></i><span>${msg}</span>`;
+  area.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+// ── CLOCK ────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById("time-display").textContent =
+    now.toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+}
+setInterval(updateClock,1000); updateClock();
+
+// ── INIT ─────────────────────────────────────────
+// ── TOP MENU (Semana / Progresso / Metas) ────────
+document.querySelectorAll(".nav-tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    const view = tab.dataset.view;
+    document.getElementById("view-semana").style.display = view==="semana" ? "flex" : "none";
+    document.getElementById("view-progresso").style.display = view==="progresso" ? "flex" : "none";
+    document.getElementById("view-metas").style.display = view==="metas" ? "flex" : "none";
+    if(view === "progresso") updateProgressStub();
+  });
+});
+
+function updateProgressStub() {
+  const keys = Object.keys(calData);
+  document.getElementById("pstub-total").textContent = keys.length;
+  const usedColors = new Set(keys.map(k => calData[k].color));
+  document.getElementById("pstub-cats").textContent = usedColors.size;
+}
+
+// ── MOBILE BOTTOM NAV ─────────────────────────────
+function setMobilePanel(name) {
+  document.getElementById("view-semana").style.display = "flex";
+  document.querySelectorAll(".nav-tab").forEach((t,i)=>t.classList.toggle("active", i===0));
+  document.getElementById("view-progresso").style.display = "none";
+  document.getElementById("view-metas").style.display = "none";
+
+  document.querySelector(".sidebar").classList.toggle("mobile-active", name==="kanban");
+  document.querySelector(".center").classList.toggle("mobile-active", name==="cal");
+  document.querySelector(".right-panel").classList.toggle("mobile-active", name==="ai");
+  document.querySelectorAll(".mt-btn").forEach(b => b.classList.toggle("active", b.dataset.mtab===name));
+}
+document.querySelectorAll(".mt-btn").forEach(btn => {
+  btn.addEventListener("click", () => setMobilePanel(btn.dataset.mtab));
+});
+if(window.matchMedia("(max-width: 860px)").matches) setMobilePanel("kanban");
+window.addEventListener("resize", () => {
+  if(window.matchMedia("(max-width: 860px)").matches) {
+    if(!document.querySelector(".sidebar.mobile-active, .center.mobile-active, .right-panel.mobile-active")) {
+      setMobilePanel("kanban");
+    }
+  } else {
+    document.querySelector(".sidebar").classList.remove("mobile-active");
+    document.querySelector(".center").classList.remove("mobile-active");
+    document.querySelector(".right-panel").classList.remove("mobile-active");
+  }
+});
+
+buildKanban();
+buildCalendar();
+</script>
+</body>
+</html>
