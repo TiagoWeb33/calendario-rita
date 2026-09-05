@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Calendário Tiagox - Rita</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/dist/tabler-icons.min.css">
+<style>
+:root {
+  --bg: #0f0e17;
+  --bg2: #16151f;
+  --bg3: #1e1c2a;
+  --bg4: #252336;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0eeff;
+  --text2: #9d99b8;
+  --text3: #5f5c7a;
+  --accent: #7c6af7;
+  --accent2: #a594f9;
+  --accent-glow: rgba(124,106,247,0.18);
+  --pink: #e879a0;
+  --teal: #34d399;
+  --amber: #fbbf24;
+  --coral: #f87171;
+  --sky: #60a5fa;
+  --navy: #0a1f44;
+  --navy2: #0d2a5c;
+  --navy3: #123572;
+  --r: 10px;
+  --r2: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ── BACKGROUND ─────────────────────────────── */
+.bg-canvas {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18;
+}
+.orb1 { width: 500px; height: 500px; background: #123572; top: -120px; left: -80px; animation: drift 18s ease-in-out infinite alternate; }
+.orb2 { width: 400px; height: 400px; background: #0d2a5c; bottom: -100px; right: -60px; animation: drift 14s ease-in-out infinite alternate-reverse; }
+.orb3 { width: 300px; height: 300px; background: #60a5fa; top: 40%; left: 35%; animation: drift 22s ease-in-out infinite alternate; }
+@keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,20px) scale(1.08); } }
+
+.grid-lines {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ── LAYOUT ─────────────────────────────────── */
+.shell { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100vh; padding-top: 70px; }
+
+/* ── TOPBAR — navbar flutuante ─────────────────── */
+.topbar {
+  display: flex; align-items: center; gap: 0; padding: 0 18px;
+  height: 54px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(20,19,32,0.85); backdrop-filter: blur(20px);
+  flex-shrink: 0;
+  position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+  width: min(94vw, 900px); border-radius: 999px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+  z-index: 200;
+}
+.logo { display: flex; align-items: center; gap: 10px; margin-right: 20px; }
+.logo-mark {
+  width: 28px; height: 28px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--navy3), var(--sky));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 15px; color: #fff;
+}
+.logo-name { font-size: 14px; font-weight: 600; letter-spacing: -0.3px; }
+.logo-sub { font-size: 10px; color: var(--text2); font-weight: 400; }
+
+.nav-tabs { display: flex; gap: 2px; flex: 1; }
+.nav-tab {
+  display: flex; align-items: center; gap: 6px; padding: 6px 14px;
+  border-radius: 999px; font-size: 12px; color: var(--text2);
+  cursor: pointer; border: none; background: none; transition: all 0.15s;
+}
+.nav-tab:hover { background: var(--bg4); color: var(--text); }
+.nav-tab.active { background: var(--accent-glow); color: var(--accent2); border: 1px solid rgba(124,106,247,0.25); }
+.nav-tab i { font-size: 15px; }
+
+.topbar-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy3), var(--pink));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+}
+.notif-btn {
+  position: relative; width: 34px; height: 34px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text2); font-size: 16px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.notif-btn:hover {
+  background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);
+  color: #fff; transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.notif-btn:active { transform: translateY(0); }
+.notif-badge {
+  position: absolute; top: -3px; right: -3px; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--coral); border: 2px solid var(--bg);
+  font-size: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;
+}
+
+/* ── MAIN AREA ───────────────────────────────── */
+.main { display: flex; flex: 1; min-height: 0; }
+
+/* ── LEFT SIDEBAR (Kanban) — azul marinho ─────── */
+.sidebar {
+  width: 256px; min-width: 220px; flex-shrink: 0;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(180deg, var(--navy), var(--navy2));
+  backdrop-filter: blur(10px);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-header { padding: 14px 16px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sidebar-header h2 { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.5); letter-spacing: 0.5px; text-transform: uppercase; }
+.sidebar-search {
+  margin: 10px 12px 0; position: relative;
+}
+.sidebar-search input {
+  width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 6px 10px 6px 30px; font-size: 12px; color: #fff;
+  outline: none;
+}
+.sidebar-search input::placeholder { color: rgba(255,255,255,0.35); }
+.sidebar-search input:focus { border-color: var(--sky); }
+.sidebar-search i { position: absolute; left: 9px; top: 7px; font-size: 14px; color: var(--text3); }
+
+.kanban-scroll { flex: 1; overflow-y: auto; padding: 8px 0 16px; }
+.kanban-scroll::-webkit-scrollbar { width: 4px; }
+.kanban-scroll::-webkit-scrollbar-track { background: transparent; }
+.kanban-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.cat-section { margin: 0 8px 2px; }
+.cat-toggle {
+  display: flex; align-items: center; gap: 8px; padding: 7px 8px;
+  border-radius: var(--r); cursor: pointer; color: rgba(255,255,255,0.75);
+  font-size: 11px; font-weight: 500; background: none; border: none; width: 100%;
+  text-align: left; transition: background 0.12s;
+}
+.cat-toggle:hover { background: rgba(255,255,255,0.08); }
+.cat-toggle i.cat-icon { font-size: 14px; }
+.cat-toggle .chevron { margin-left: auto; font-size: 12px; transition: transform 0.2s; }
+.cat-toggle.open .chevron { transform: rotate(90deg); }
+.cat-count { font-size: 10px; background: rgba(255,255,255,0.1); border-radius: 4px; padding: 1px 5px; color: rgba(255,255,255,0.5); }
+
+.task-items { padding: 2px 0 4px; display: none; }
+.cat-toggle.open + .task-items { display: flex; flex-direction: column; gap: 3px; }
+
+.task-chip {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 4px; padding: 6px 9px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; cursor: grab; transition: all 0.12s;
+  font-size: 12px; color: #fff;
+}
+.task-chip:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); transform: translateX(2px); }
+.task-chip:active { cursor: grabbing; opacity: 0.6; }
+.task-chip .chip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.task-chip .chip-dur { margin-left: auto; font-size: 10px; color: rgba(255,255,255,0.45); white-space: nowrap; }
+.task-chip .chip-grip { font-size: 12px; color: rgba(255,255,255,0.4); opacity: 0; }
+.task-chip:hover .chip-grip { opacity: 1; }
+
+/* ── CENTER (Calendar) ───────────────────────── */
+.center { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+
+.cal-header {
+  display: flex; align-items: center; gap: 12px; padding: 12px 18px 10px;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+  background: rgba(15,14,23,0.5);
+}
+.cal-header h2 { font-size: 15px; font-weight: 600; }
+.week-nav { display: flex; gap: 4px; }
+.week-nav button, .today-btn {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 5px 10px; color: var(--text2);
+  cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;
+  transition: all 0.12s;
+}
+.week-nav button:hover, .today-btn:hover { background: var(--bg4); border-color: var(--border2); color: var(--text); }
+.today-btn { padding: 5px 12px; color: var(--accent2); border-color: rgba(124,106,247,0.3); }
+
+.cal-grid { flex: 1; overflow: auto; }
+.cal-grid::-webkit-scrollbar { width: 4px; height: 4px; }
+.cal-grid::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+.grid-wrap { display: grid; grid-template-columns: 52px repeat(7, 1fr); min-width: 700px; }
+
+.corner, .day-head {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(15,14,23,0.95); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.corner { border-right: 1px solid var(--border); }
+.day-head {
+  padding: 10px 4px 8px; text-align: center;
+  border-left: 1px solid var(--border);
+}
+.day-head .d-name { font-size: 10px; color: var(--text3); font-weight: 400; letter-spacing: 0.3px; }
+.day-head .d-num { font-size: 18px; font-weight: 600; line-height: 1.2; margin-top: 2px; }
+.day-head.is-today .d-num {
+  background: var(--accent); color: #fff; width: 32px; height: 32px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  margin: 2px auto 0; font-size: 15px;
+}
+
+.time-row { display: contents; }
+.time-cell {
+  border-right: 1px solid var(--border); border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex; align-items: flex-start; justify-content: flex-end;
+  padding: 3px 8px 0 0; font-size: 10px; color: var(--text3); height: 52px;
+}
+.drop-cell {
+  height: 52px; border-left: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  position: relative; transition: background 0.1s;
+}
+.drop-cell.over { background: var(--accent-glow); }
+.drop-cell.over::after {
+  content: ''; position: absolute; inset: 2px; border: 1px dashed rgba(124,106,247,0.5); border-radius: 6px;
+}
+
+.cal-event {
+  position: absolute; left: 3px; right: 3px; top: 3px; bottom: 3px;
+  border-radius: 7px; padding: 4px 7px;
+  font-size: 10px; font-weight: 500; color: #fff;
+  display: flex; flex-direction: column; justify-content: space-between;
+  overflow: hidden; cursor: default; z-index: 2;
+}
+.cal-event::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: rgba(255,255,255,0.35); border-radius: 7px 0 0 7px;
+}
+.cal-event .ev-name { line-height: 1.3; }
+.cal-event .ev-dur { font-size: 9px; opacity: 0.75; }
+.cal-event .ev-x {
+  position: absolute; right: 4px; top: 3px; opacity: 0;
+  cursor: pointer; font-size: 12px; line-height: 1; background: none; border: none; color: white;
+}
+.cal-event:hover .ev-x { opacity: 0.8; }
+.cal-event .ev-x:hover { opacity: 1 !important; }
+
+/* ── TOPBAR DROPDOWNS ─────────────────────────── */
+.topbar-dropdown {
+  display: none; position: fixed; top: 78px; right: max(3vw, calc(50vw - 450px + 20px));
+  width: 300px; background: linear-gradient(180deg, rgba(26,25,42,0.98), rgba(18,17,28,0.98));
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.14); border-radius: 18px;
+  padding: 18px; box-shadow: 0 24px 70px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06);
+  z-index: 250; animation: ddIn 0.18s cubic-bezier(.2,.8,.3,1);
+}
+.topbar-dropdown.open { display: block; }
+@keyframes ddIn { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: none; } }
+.td-title {
+  font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 9px;
+  margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.td-title i {
+  color: #fff; font-size: 15px; width: 28px; height: 28px; border-radius: 9px;
+  background: linear-gradient(135deg, var(--navy3), var(--sky));
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.td-connected {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+  background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3);
+  border-radius: 12px; font-size: 11px; color: var(--teal); margin-bottom: 12px; font-weight: 500;
+}
+.td-connected i { font-size: 15px; }
+.td-link {
+  display: block; width: 100%; text-align: center; margin-top: 10px; font-size: 11px;
+  color: var(--text3); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; cursor: pointer; padding: 8px; transition: all 0.15s;
+}
+.td-link:hover { color: var(--coral); background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.25); }
+.topbar-dropdown label {
+  display: block; font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 600;
+  letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 6px; margin-top: 12px;
+}
+.topbar-dropdown label:first-of-type { margin-top: 0; }
+.topbar-dropdown input, .topbar-dropdown textarea {
+  width: 100%; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 10px 12px; font-size: 12px; color: var(--text);
+  outline: none; font-family: 'Inter', sans-serif; margin-bottom: 4px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.topbar-dropdown input:focus, .topbar-dropdown textarea:focus {
+  border-color: var(--sky); background: rgba(0,0,0,0.35);
+}
+
+.pretty-btn {
+  width: 100%; margin-top: 12px; padding: 11px;
+  background: linear-gradient(135deg, var(--navy3), var(--sky));
+  border: none; border-radius: 11px; color: #fff; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 14px rgba(96,165,250,0.25);
+}
+.pretty-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(96,165,250,0.4); filter: brightness(1.08); }
+.pretty-btn:active { transform: translateY(0); }
+.pretty-btn i { font-size: 16px; }
+
+.profile-switch {
+  display: flex; align-items: center; gap: 7px; padding: 4px 12px 4px 4px;
+  border-radius: 999px; cursor: pointer;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  transition: all 0.15s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.profile-switch:hover {
+  background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22);
+  transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.profile-switch span { font-size: 12px; font-weight: 600; color: var(--text); }
+
+.profile-option {
+  width: 100%; display: flex; align-items: center; gap: 11px;
+  padding: 10px 10px; border-radius: 12px; background: none;
+  border: 1px solid transparent; cursor: pointer; text-align: left;
+  margin-bottom: 5px; transition: all 0.15s ease;
+}
+.profile-option:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.08); }
+.profile-option .avatar { width: 32px; height: 32px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.po-name { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.po-sub { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.po-check {
+  margin-left: auto; opacity: 0; font-size: 13px; color: #fff;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--amber), #f59e0b);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(251,191,36,0.4);
+}
+.profile-option.active .po-check { opacity: 1; }
+.profile-option.active { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.25); }
+
+.cloud-dot { position: absolute; bottom: -2px; right: -2px; width: 9px; height: 9px; border-radius: 50%; background: var(--text3); border: 2px solid var(--bg); }
+.cloud-dot.on { background: var(--teal); }
+.notif-btn { position: relative; }
+
+
+/* TOAST */
+.toast-area { position: fixed; top: 64px; right: 16px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--bg4); border: 1px solid var(--border2); border-radius: 10px;
+  padding: 10px 14px; font-size: 12px; color: var(--text);
+  display: flex; align-items: center; gap: 9px; min-width: 240px; max-width: 300px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  animation: slideIn 0.25s ease; pointer-events: auto;
+}
+.toast i { font-size: 16px; flex-shrink: 0; }
+.toast.success i { color: var(--teal); }
+.toast.info i { color: var(--sky); }
+.toast.warn i { color: var(--amber); }
+@keyframes slideIn { from { transform: translateX(60px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* STATUS BAR */
+.perm-banner {
+  position: fixed; top: 62px; left: 50%; transform: translateX(-50%);
+  z-index: 998; background: var(--bg4); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 12px 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  display: flex; align-items: center; gap: 12px; max-width: 420px;
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown { from { transform: translate(-50%,-16px); opacity: 0; } to { transform: translate(-50%,0); opacity: 1; } }
+.perm-banner i.pb-icon { font-size: 22px; color: var(--accent2); flex-shrink: 0; }
+.perm-banner .pb-text { font-size: 12px; color: var(--text); line-height: 1.5; }
+.perm-banner .pb-text b { font-weight: 600; }
+.perm-banner .pb-actions { display: flex; gap: 6px; margin-top: 8px; }
+.pb-btn { padding: 5px 12px; border-radius: 7px; font-size: 11px; cursor: pointer; border: none; font-family: 'Inter', sans-serif; font-weight: 500; }
+.pb-btn.allow { background: var(--accent); color: #fff; }
+.pb-btn.allow:hover { opacity: 0.9; }
+.pb-btn.dismiss { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+.pb-btn.dismiss:hover { background: var(--bg2); }
+
+/* MOBILE BOTTOM NAV */
+.mobile-tabbar { display: none; }
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media (max-width: 860px) {
+  html, body { overflow: auto; height: auto; }
+  .shell { height: auto; min-height: 100vh; padding-top: 60px; }
+
+  .topbar { padding: 0 12px; height: 50px; top: 8px; }
+  .nav-tabs { display: none; }
+  .logo-sub { display: none; }
+
+  .main { flex-direction: column; height: auto; padding-bottom: 60px; }
+
+  .sidebar { width: 100%; min-width: 0; border: none; }
+  .sidebar { display: none; border-bottom: 1px solid var(--border); }
+  .center { width: 100%; }
+
+  .sidebar.mobile-active, .center.mobile-active { display: flex; }
+  .center { display: none; }
+
+  .kanban-scroll { max-height: 70vh; }
+
+  .cal-grid { overflow-x: auto; }
+  .grid-wrap { min-width: 640px; }
+
+  .simple-view-inner { padding: 30px 16px; }
+
+  .statusbar { flex-wrap: wrap; height: auto; padding: 6px 12px; gap: 10px; position: fixed; bottom: 52px; left: 0; right: 0; z-index: 50; background: var(--bg); }
+  #time-display { display: none; }
+
+  .mobile-tabbar {
+    display: flex; position: fixed; bottom: 0; left: 0; right: 0; height: 52px;
+    background: rgba(15,14,23,0.97); backdrop-filter: blur(14px);
+    border-top: 1px solid var(--border); z-index: 100;
+  }
+  .mt-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; background: none; border: none; color: var(--text3); font-size: 9px;
+    font-family: 'Inter', sans-serif;
+  }
+  .mt-btn i { font-size: 19px; }
+  .mt-btn.active { color: var(--accent2); }
+
+  .toast-area { top: auto; bottom: 110px; right: 8px; left: 8px; align-items: center; }
+  .toast { max-width: none; width: 100%; }
+  .perm-banner { max-width: calc(100% - 24px); left: 12px; right: 12px; transform: none; top: 56px; }
+  .topbar-dropdown { width: calc(100vw - 24px); right: 12px; left: 12px; top: 64px; }
+}
+
+@media (max-width: 480px) {
+  .day-head .d-num { font-size: 14px; }
+  .day-head { padding: 8px 2px 6px; }
+  .time-cell { font-size: 9px; padding-right: 4px; }
+  .cal-event { font-size: 9px; padding: 3px 5px; }
+  .cal-event .ev-x { opacity: 0.6; }
+
+  .topbar { padding: 0 8px; }
+  .logo-mark { width: 26px; height: 26px; font-size: 14px; }
+  .logo-name { font-size: 13px; }
+  .avatar { width: 26px; height: 26px; }
+  .notif-btn { width: 26px; height: 26px; }
+
+  .sidebar-header, .kanban-header { padding: 10px 12px 8px; }
+  .task-chip { padding: 9px 10px; font-size: 13px; }
+  .cat-toggle { padding: 10px 8px; font-size: 12px; }
+
+  .ai-form, .email-compose, .notif-section { padding: 12px; }
+  .field-row input, .field-row textarea, .ai-select { font-size: 14px; padding: 9px 10px; }
+  .pretty-btn { padding: 12px; font-size: 13px; }
+
+  .toggle { width: 40px; height: 24px; }
+  .toggle::after { width: 18px; height: 18px; }
+  .toggle.on::after { left: 18px; }
+
+  .mt-btn i { font-size: 20px; }
+  .simple-view-inner h2 { font-size: 16px; }
+}
+
+/* Touch-friendly tap targets everywhere on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .task-chip { padding: 10px 12px; min-height: 40px; }
+  .drop-cell { min-height: 44px; }
+  .mt-btn, .nav-tab, .notif-btn { min-height: 40px; }
+  button, .toggle, .cat-toggle { min-height: 38px; }
+}
+
+/* Respect device notches / home indicator */
+.mobile-tabbar { padding-bottom: env(safe-area-inset-bottom); height: calc(52px + env(safe-area-inset-bottom)); }
+.topbar { padding-top: env(safe-area-inset-top); }
+
+.statusbar {
+  height: 28px; border-top: 1px solid var(--border); display: flex; align-items: center;
+  padding: 0 16px; gap: 16px; background: rgba(15,14,23,0.8); flex-shrink: 0;
+}
+.status-pill { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--text3); }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; }
+.status-dot.green { background: var(--teal); box-shadow: 0 0 6px rgba(52,211,153,0.5); }
+.status-dot.amber { background: var(--amber); }
+.status-dot.off { background: var(--text3); }
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="grid-lines"></div>
+</div>
+
+<div class="shell">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-mark">R</div>
+      <div>
+        <div class="logo-name">Calendário Tiagox</div>
+        <div class="logo-sub">rotina da Rita</div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-view="semana"><i class="ti ti-calendar-week"></i> Semana</button>
+    </div>
+    <div class="topbar-right">
+      <div class="notif-btn" id="cloud-btn" title="Sincronização na nuvem">
+        <i class="ti ti-cloud"></i>
+        <div class="cloud-dot" id="cloud-dot"></div>
+      </div>
+      <div class="notif-btn" id="mail-btn" title="Email">
+        <i class="ti ti-mail"></i>
+      </div>
+      <div class="notif-btn" id="notif-btn" title="Notificações">
+        <i class="ti ti-bell"></i>
+        <div class="notif-badge" id="notif-badge" style="display:none;"></div>
+      </div>
+      <div class="profile-switch" id="profile-btn" title="Trocar de calendário">
+        <div class="avatar" id="avatar-badge">RI</div>
+        <span id="profile-label">Rita</span>
+        <i class="ti ti-chevron-down" style="font-size:12px;"></i>
+      </div>
+    </div>
+
+    <!-- CLOUD (FIREBASE) DROPDOWN -->
+    <div class="topbar-dropdown" id="cloud-dropdown" style="width:320px;">
+      <div class="td-title"><i class="ti ti-cloud"></i>Sincronização na nuvem</div>
+      <div id="cloud-setup">
+        <div style="font-size:10px;color:var(--text3);line-height:1.6;margin-bottom:8px;">
+          Liga uma conta gratuita <b>Firebase</b> para o calendário sincronizar em tempo real entre o teu telemóvel e o dela.
+          <br>1. Vai a <a href="https://console.firebase.google.com/" target="_blank" style="color:var(--sky);">console.firebase.google.com ↗</a> e cria um projeto grátis
+          <br>2. No menu, entra em <b>Firestore Database → Criar base de dados</b> (modo de teste)
+          <br>3. Vai a <b>Definições do projeto ⚙️ → geral</b>, cria uma "App Web" e copia o bloco <code>firebaseConfig</code>
+          <br>4. Cola esse bloco todo aqui em baixo
+        </div>
+        <label>Cole aqui o firebaseConfig</label>
+        <textarea id="fb-config" rows="5" placeholder='{"apiKey": "...", "projectId": "...", ...}' style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--text);outline:none;font-family:monospace;resize:vertical;"></textarea>
+        <button class="pretty-btn" id="fb-connect-btn"><i class="ti ti-plug"></i> Ligar Firebase</button>
+      </div>
+      <div id="cloud-connected" style="display:none;">
+        <div class="td-connected"><i class="ti ti-circle-check"></i> Sincronização activa</div>
+        <div style="font-size:10px;color:var(--text3);line-height:1.6;">
+          As tarefas de cada calendário (Rita / Tiago) actualizam-se sozinhas em qualquer dispositivo onde esta app esteja aberta com a mesma ligação.
+        </div>
+        <button class="td-link" id="fb-disconnect-btn">Desligar</button>
+      </div>
+    </div>
+
+    <!-- PROFILE DROPDOWN -->
+    <div class="topbar-dropdown" id="profile-dropdown">
+      <div class="td-title"><i class="ti ti-users"></i>Calendários</div>
+      <button class="profile-option" data-profile="rita">
+        <div class="avatar" style="background:linear-gradient(135deg, var(--navy3), var(--pink));">RI</div>
+        <div><div class="po-name">Rita</div><div class="po-sub">o teu calendário</div></div>
+        <i class="ti ti-star-filled po-check"></i>
+      </button>
+      <button class="profile-option" data-profile="tiago">
+        <div class="avatar" style="background:linear-gradient(135deg, var(--navy3), var(--sky));">TI</div>
+        <div><div class="po-name">Tiago</div><div class="po-sub">calendário partilhado</div></div>
+        <i class="ti ti-star-filled po-check"></i>
+      </button>
+      <div style="font-size:10px;color:var(--text3);margin-top:10px;line-height:1.5;" id="profile-sync-note">
+        <i class="ti ti-info-circle" style="vertical-align:-1px;"></i> Cada calendário guarda as suas próprias tarefas, neste dispositivo.
+      </div>
+    </div>
+
+    <!-- MAIL DROPDOWN -->
+    <div class="topbar-dropdown" id="mail-dropdown">
+      <div class="td-title"><i class="ti ti-mail"></i>Email automático</div>
+      <div id="mail-setup">
+        <label>Endpoint do Formspree</label>
+        <input id="ej-service" type="text" placeholder="https://formspree.io/f/xxxxxxx">
+        <label style="margin-top:8px;">Email de destino</label>
+        <input id="ej-to" type="email" value="projetostiago98@gmail.com">
+        <button class="pretty-btn" id="ej-connect-btn"><i class="ti ti-plug"></i> Ligar</button>
+      </div>
+      <div id="mail-connected" style="display:none;">
+        <div class="td-connected"><i class="ti ti-circle-check"></i> Ligado a <span id="ej-to-label"></span></div>
+        <button class="pretty-btn" id="send-routine-btn"><i class="ti ti-send"></i> Enviar rotina por email</button>
+        <button class="td-link" id="ej-disconnect-btn">Desligar</button>
+      </div>
+    </div>
+
+    <!-- NOTIF DROPDOWN -->
+    <div class="topbar-dropdown" id="notif-dropdown">
+      <div class="td-title"><i class="ti ti-bell"></i>Notificações push</div>
+      <p style="font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:10px;">Recebe um lembrete 5 min antes de cada tarefa agendada, neste dispositivo.</p>
+      <button class="pretty-btn" id="perm-btn"><i class="ti ti-device-mobile"></i> Activar neste dispositivo</button>
+      <button class="pretty-btn" id="sched-btn" style="margin-top:8px;"><i class="ti ti-clock"></i> Agendar tarefas da semana</button>
+    </div>
+  </div>
+
+  <div class="main" id="view-semana">
+    <!-- SIDEBAR KANBAN -->
+    <div class="sidebar">
+      <div class="sidebar-header"><h2>tarefas & hobbies</h2></div>
+      <div class="sidebar-search">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="Filtrar..." id="search-input">
+      </div>
+      <div class="kanban-scroll" id="kanban"></div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="center">
+      <div class="cal-header">
+        <h2 id="week-label">–</h2>
+        <div class="week-nav">
+          <button id="prev-btn"><i class="ti ti-chevron-left"></i></button>
+          <button class="today-btn" id="today-btn">Hoje</button>
+          <button id="next-btn"><i class="ti ti-chevron-right"></i></button>
+        </div>
+        <div style="margin-left:auto;font-size:11px;color:var(--text3);">
+          <i class="ti ti-drag-drop" style="vertical-align:-2px;margin-right:4px;"></i>Arrastra para agendar
+        </div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <div class="status-pill" id="push-status"><div class="status-dot amber" id="push-dot"></div>Push — pendente</div>
+    <div class="status-pill" id="email-status"><div class="status-dot off" id="email-dot"></div>Email — offline</div>
+    <div class="status-pill"><div class="status-dot green"></div>Memória local activa</div>
+    <div style="margin-left:auto;font-size:10px;color:var(--text3);" id="time-display"></div>
+  </div>
+  <div class="mobile-tabbar" id="mobile-tabbar">
+    <button class="mt-btn active" data-mtab="kanban"><i class="ti ti-list-check"></i>Tarefas</button>
+    <button class="mt-btn" data-mtab="cal"><i class="ti ti-calendar-week"></i>Calendário</button>
+  </div>
+</div>
+
+<div class="toast-area" id="toast-area"></div>
+<div class="perm-banner" id="perm-banner" style="display:none;">
+  <i class="ti ti-bell-ringing pb-icon"></i>
+  <div>
+    <div class="pb-text"><b>Calendário Tiagox</b> quer enviar-te notificações das tarefas da Rita.</div>
+    <div class="pb-actions">
+      <button class="pb-btn allow" id="pb-allow">Permitir</button>
+      <button class="pb-btn dismiss" id="pb-dismiss">Agora não</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────
+const CATS = [
+  { id:"manha", name:"Manhã", icon:"ti-sun", color:"#F59E0B", tasks:[
+    {n:"Acordar cedo",d:"—"},{n:"Meditação",d:"10m"},{n:"Journaling",d:"15m"},
+    {n:"Leitura matinal",d:"20m"},{n:"Banho frio",d:"5m"},{n:"Alongamentos",d:"10m"}
+  ]},
+  { id:"ginasio", name:"Ginásio & Desporto", icon:"ti-barbell", color:"#7c6af7", tasks:[
+    {n:"Treino de força",d:"60m"},{n:"Cardio / corrida",d:"30m"},{n:"Yoga",d:"45m"},
+    {n:"Pilates",d:"50m"},{n:"Natação",d:"45m"},{n:"Caminhada",d:"30m"},
+    {n:"Futebol",d:"90m"},{n:"Ténis",d:"60m"},{n:"Ciclismo",d:"60m"},{n:"HIIT",d:"30m"}
+  ]},
+  { id:"facu", name:"Faculdade", icon:"ti-school", color:"#60a5fa", tasks:[
+    {n:"Estudar",d:"2h"},{n:"Rever apontamentos",d:"45m"},{n:"Trabalho de grupo",d:"1h30"},
+    {n:"Preparar apresentação",d:"1h"},{n:"Pesquisa académica",d:"1h"},{n:"Aula presencial",d:"2h"}
+  ]},
+  { id:"negocio", name:"Negócio", icon:"ti-briefcase", color:"#34d399", tasks:[
+    {n:"Email & comunicação",d:"30m"},{n:"Reunião de equipa",d:"1h"},{n:"Planeamento semanal",d:"45m"},
+    {n:"Análise de métricas",d:"30m"},{n:"Criar conteúdo",d:"1h"},{n:"Gestão financeira",d:"30m"},
+    {n:"Prospecção / vendas",d:"1h"},{n:"Redes sociais",d:"30m"}
+  ]},
+  { id:"diaria", name:"Tarefas diárias", icon:"ti-checkbox", color:"#a594f9", tasks:[
+    {n:"Pequeno-almoço",d:"20m"},{n:"Almoço",d:"30m"},{n:"Jantar",d:"30m"},
+    {n:"Arrumar casa",d:"20m"},{n:"Compras",d:"45m"},{n:"Preparar refeições",d:"45m"},
+    {n:"Roupa & higiene",d:"20m"}
+  ]},
+  { id:"hobby", name:"Hobbies & lazer", icon:"ti-palette", color:"#e879a0", tasks:[
+    {n:"Leitura",d:"30m"},{n:"Música / tocar",d:"30m"},{n:"Sair com amigos",d:"2h"},
+    {n:"Séries / filme",d:"1h"},{n:"Cozinhar",d:"45m"},{n:"Fotografia",d:"1h"},
+    {n:"Dança",d:"1h"},{n:"Desenho / arte",d:"45m"},{n:"Podcast",d:"30m"},
+    {n:"Videojogos",d:"1h"},{n:"Jardinagem",d:"30m"},{n:"Crochê",d:"45m"}
+  ]},
+  { id:"bemestar", name:"Bem-estar", icon:"ti-heart", color:"#f87171", tasks:[
+    {n:"Skincare",d:"15m"},{n:"Descanso / soneca",d:"20m"},{n:"Respiração",d:"10m"},
+    {n:"Banho relaxante",d:"30m"},{n:"Chamada com família",d:"30m"},{n:"Cuidar da planta",d:"10m"}
+  ]},
+  { id:"transportes", name:"Transportes", icon:"ti-car", color:"#38bdf8", tasks:[
+    {n:"Ir de carro",d:"—"},{n:"Apanhar autocarro",d:"—"},{n:"Metro / comboio",d:"—"},
+    {n:"Boleia partilhada",d:"—"},{n:"Ir a pé",d:"20m"},{n:"Bicicleta",d:"—"},
+    {n:"Trotinete",d:"—"},{n:"Levar/buscar alguém",d:"30m"}
+  ]},
+  { id:"motion", name:"Motion Graphics", icon:"ti-video", color:"#fb923c", tasks:[
+    {n:"Editar vídeo",d:"1h30"},{n:"Animar logótipo",d:"1h"},{n:"Criar template",d:"45m"},
+    {n:"Renderizar projeto",d:"—"},{n:"Storyboard",d:"45m"},{n:"Cortes / trailers",d:"1h"},
+    {n:"After Effects",d:"1h30"},{n:"Motion para redes sociais",d:"1h"}
+  ]},
+  { id:"noite", name:"Noite", icon:"ti-moon", color:"#4F46E5", tasks:[
+    {n:"Planear dia seguinte",d:"10m"},{n:"Leitura noturna",d:"20m"},
+    {n:"Sem ecrãs",d:"30m"},{n:"Deitar cedo",d:"—"},{n:"Gratidão",d:"5m"}
+  ]}
+];
+
+const HOURS = Array.from({length:18},(_,i)=>i+6);
+const DAYS_PT = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+const MONTHS_PT = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const DAYS_FULL = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+const CAT_COLORS = {manhã:"#F59E0B",ginásio:"#7c6af7",faculdade:"#60a5fa",negócio:"#34d399",diária:"#a594f9",hobby:"#e879a0","bem-estar":"#f87171",noite:"#4F46E5"};
+
+let weekOff = 0;
+let dragData = null;
+// ── MEMÓRIA PERSISTENTE (localStorage) ───────────
+// Guarda as tarefas do calendário no browser, para não se perderem
+// ao dar refresh à página (F5) ou ao fechar e reabrir a aba.
+// Cada perfil (Rita / Tiago) tem a sua própria chave, para terem
+// calendários separados dentro da mesma app.
+const PROFILE_KEY = "calendarioTiagoxRita_activeProfile_v1";
+const PROFILES = {
+  rita: { label:"Rita", initials:"RI", storageKey:"calendarioTiagoxRita_calData_rita_v1" },
+  tiago: { label:"Tiago", initials:"TI", storageKey:"calendarioTiagoxRita_calData_tiago_v1" }
+};
+
+function getActiveProfile() {
+  return localStorage.getItem(PROFILE_KEY) || "rita";
+}
+function setActiveProfile(id) {
+  localStorage.setItem(PROFILE_KEY, id);
+}
+
+function loadCalData() {
+  try {
+    const key = PROFILES[getActiveProfile()].storageKey;
+    const raw = localStorage.getItem(key);
+    const data = raw ? JSON.parse(raw) : {};
+    // Remove entradas do formato antigo (dia-da-semana em vez de data exacta)
+    Object.keys(data).forEach(k => { if(k.split("-").length !== 4) delete data[k]; });
+    return data;
+  } catch(e) { return {}; }
+}
+
+function saveCalData() {
+  try {
+    const key = PROFILES[getActiveProfile()].storageKey;
+    localStorage.setItem(key, JSON.stringify(calData));
+  }
+  catch(e) { toast("Não foi possível guardar (memória do browser cheia?)","warn"); }
+  syncCalDataToCloud();
+}
+
+let calData = loadCalData();
+
+// ── FIREBASE — sincronização na nuvem entre dispositivos ──
+const FB_CONFIG_KEY = "calendarioTiagoxRita_firebaseConfig_v1";
+let fbApp = null, fbDb = null, fbUnsub = null;
+
+function loadFbConfig() {
+  try { return JSON.parse(localStorage.getItem(FB_CONFIG_KEY) || "null"); } catch(e) { return null; }
+}
+function saveFbConfig(cfg) { localStorage.setItem(FB_CONFIG_KEY, JSON.stringify(cfg)); }
+
+function initFirebase() {
+  const cfg = loadFbConfig();
+  if(!cfg) { updateCloudUI(false); return; }
+  try {
+    if(!fbApp) fbApp = firebase.initializeApp(cfg);
+    fbDb = firebase.firestore();
+    updateCloudUI(true);
+    subscribeCloudProfile();
+  } catch(e) {
+    console.error(e);
+    toast("Erro a ligar ao Firebase — verifica o config","warn");
+    updateCloudUI(false);
+  }
+}
+
+function updateCloudUI(connected) {
+  document.getElementById("cloud-setup").style.display = connected ? "none" : "block";
+  document.getElementById("cloud-connected").style.display = connected ? "block" : "none";
+  document.getElementById("cloud-dot").className = "cloud-dot" + (connected ? " on" : "");
+  document.getElementById("profile-sync-note").innerHTML = connected
+    ? '<i class="ti ti-cloud-check" style="vertical-align:-1px;"></i> Sincronizado na nuvem — vê o mesmo em qualquer dispositivo.'
+    : '<i class="ti ti-info-circle" style="vertical-align:-1px;"></i> Cada calendário guarda as suas próprias tarefas, neste dispositivo.';
+}
+
+// Liga-se ao documento do perfil activo e ouve alterações em tempo real
+function subscribeCloudProfile() {
+  if(!fbDb) return;
+  if(fbUnsub) { fbUnsub(); fbUnsub = null; }
+  const profileId = getActiveProfile();
+  const docRef = fbDb.collection("calendarios").doc(profileId);
+  fbUnsub = docRef.onSnapshot(snap => {
+    if(snap.exists) {
+      const remoteData = snap.data().tasks || {};
+      calData = remoteData;
+      try { localStorage.setItem(PROFILES[profileId].storageKey, JSON.stringify(calData)); } catch(e) {}
+      buildCalendar();
+    }
+  }, err => {
+    console.error(err);
+    toast("Falha a sincronizar com a nuvem","warn");
+  });
+}
+
+function syncCalDataToCloud() {
+  if(!fbDb) return;
+  const profileId = getActiveProfile();
+  fbDb.collection("calendarios").doc(profileId).set({ tasks: calData, updatedAt: Date.now() })
+    .catch(err => { console.error(err); toast("Falha ao guardar na nuvem","warn"); });
+}
+
+document.getElementById("fb-connect-btn").addEventListener("click", () => {
+  const raw = document.getElementById("fb-config").value.trim();
+  if(!raw) { toast("Cola o firebaseConfig primeiro","warn"); return; }
+  let cfg;
+  try {
+    // Extrai só o objecto { ... } do bloco colado, ignorando imports/comentários/linhas à volta
+    const match = raw.match(/\{[\s\S]*apiKey[\s\S]*?\}/);
+    if(!match) throw new Error("no object found");
+    let objText = match[0];
+    // Remove vírgula a mais antes do fecho, se houver
+    objText = objText.replace(/,\s*\}/g, "}");
+    // Torna as chaves em JSON válido (aceita chaves sem aspas e aspas simples)
+    const cleaned = objText
+      .replace(/([{,]\s*)([A-Za-z0-9_]+)\s*:/g, '$1"$2":')
+      .replace(/'/g, '"');
+    cfg = JSON.parse(cleaned);
+    if(!cfg.apiKey || !cfg.projectId) throw new Error("missing fields");
+  } catch(e) {
+    toast("Não consegui ler o config — confirma que colaste o bloco com apiKey e projectId","warn");
+    return;
+  }
+  saveFbConfig(cfg);
+  initFirebase();
+  toast("Firebase ligado — a sincronizar","success");
+});
+
+document.getElementById("fb-disconnect-btn").addEventListener("click", () => {
+  if(fbUnsub) { fbUnsub(); fbUnsub = null; }
+  localStorage.removeItem(FB_CONFIG_KEY);
+  fbApp = null; fbDb = null;
+  updateCloudUI(false);
+  toast("Firebase desligado — a voltar a modo local","info");
+});
+
+initFirebase();
+
+// ── KANBAN ──────────────────────────────────────
+function buildKanban(filter="") {
+  const el = document.getElementById("kanban");
+  el.innerHTML = "";
+  CATS.forEach(cat => {
+    const tasks = cat.tasks.filter(t => !filter || t.n.toLowerCase().includes(filter.toLowerCase()));
+    const sec = document.createElement("div");
+    sec.className = "cat-section";
+    const btn = document.createElement("button");
+    btn.className = "cat-toggle" + (filter ? " open" : "");
+    btn.innerHTML = `<i class="ti ${cat.icon} cat-icon" style="color:${cat.color}"></i>${cat.name}<span class="cat-count">${tasks.length}</span><i class="ti ti-chevron-right chevron"></i>`;
+    btn.addEventListener("click", () => btn.classList.toggle("open"));
+    sec.appendChild(btn);
+    const list = document.createElement("div");
+    list.className = "task-items";
+    tasks.forEach(t => {
+      const chip = document.createElement("div");
+      chip.className = "task-chip";
+      chip.draggable = true;
+      chip.dataset.name = t.n; chip.dataset.dur = t.d; chip.dataset.color = cat.color;
+      chip.innerHTML = `<i class="ti ti-grip-vertical chip-grip"></i><div class="chip-dot" style="background:${cat.color}"></div><span>${t.n}</span><span class="chip-dur">${t.d}</span>`;
+      chip.addEventListener("dragstart", e => {
+        dragData = {name:t.n,dur:t.d,color:cat.color};
+        e.dataTransfer.effectAllowed = "copy";
+      });
+      list.appendChild(chip);
+    });
+    sec.appendChild(list);
+    el.appendChild(sec);
+  });
+}
+
+document.getElementById("search-input").addEventListener("input", e => buildKanban(e.target.value));
+
+// ── CALENDAR ────────────────────────────────────
+function pad2(n) { return String(n).padStart(2,"0"); }
+function dateKey(date, hour) {
+  return `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}-${hour}`;
+}
+function parseDateKey(key) {
+  const parts = key.split("-");
+  const h = Number(parts.pop());
+  const dateStr = parts.join("-"); // YYYY-MM-DD
+  const [y,m,d] = dateStr.split("-").map(Number);
+  const date = new Date(y, m-1, d, h, 0, 0, 0);
+  return { date, hour: h };
+}
+
+function getWeekDates() {
+  const now = new Date();
+  const dow = now.getDay();
+  const mon = new Date(now);
+  mon.setDate(now.getDate() - (dow===0?6:dow-1) + weekOff*7);
+  return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
+}
+
+function buildCalendar() {
+  const dates = getWeekDates();
+  const today = new Date();
+  document.getElementById("week-label").textContent =
+    `${dates[0].getDate()} ${MONTHS_PT[dates[0].getMonth()]} — ${dates[6].getDate()} ${MONTHS_PT[dates[6].getMonth()]}`;
+
+  const grid = document.getElementById("cal-grid");
+  grid.innerHTML = "";
+  const wrap = document.createElement("div");
+  wrap.className = "grid-wrap";
+
+  // Corner
+  const corner = document.createElement("div");
+  corner.className = "corner";
+  wrap.appendChild(corner);
+
+  // Day headers
+  dates.forEach((d,i) => {
+    const h = document.createElement("div");
+    h.className = "day-head" + (d.toDateString()===today.toDateString()?" is-today":"");
+    h.innerHTML = `<div class="d-name">${DAYS_PT[d.getDay()]}</div><div class="d-num">${d.getDate()}</div>`;
+    wrap.appendChild(h);
+  });
+
+  // Hours
+  HOURS.forEach(h => {
+    const tc = document.createElement("div");
+    tc.className = "time-cell";
+    tc.textContent = h+":00";
+    wrap.appendChild(tc);
+    dates.forEach((d,di) => {
+      const cell = document.createElement("div");
+      cell.className = "drop-cell";
+      cell.dataset.di = di; cell.dataset.h = h;
+      const key = dateKey(d, h);
+      if(calData[key]) {
+        const ev = document.createElement("div");
+        ev.className = "cal-event";
+        ev.style.background = calData[key].color;
+        ev.innerHTML = `<button class="ev-x" data-key="${key}">×</button><div class="ev-name">${calData[key].name}</div><div class="ev-dur">${calData[key].dur}</div>`;
+        ev.querySelector(".ev-x").addEventListener("click", e=>{e.stopPropagation();delete calData[key];saveCalData();buildCalendar();});
+        cell.appendChild(ev);
+      }
+      cell.addEventListener("dragover", e=>{e.preventDefault();cell.classList.add("over");});
+      cell.addEventListener("dragleave", ()=>cell.classList.remove("over"));
+      cell.addEventListener("drop", e=>{
+        e.preventDefault(); cell.classList.remove("over");
+        if(dragData){calData[key]={...dragData};saveCalData();buildCalendar();toast("Tarefa agendada ✓","success");dragData=null;}
+      });
+      wrap.appendChild(cell);
+    });
+  });
+  grid.appendChild(wrap);
+}
+
+document.getElementById("prev-btn").addEventListener("click",()=>{weekOff--;buildCalendar();});
+document.getElementById("next-btn").addEventListener("click",()=>{weekOff++;buildCalendar();});
+document.getElementById("today-btn").addEventListener("click",()=>{weekOff=0;buildCalendar();});
+
+// ── EMAIL (mailto real) ──────────────────────────
+function buildRoutineText() {
+  const keys = Object.keys(calData);
+  if(!keys.length) return "(ainda sem tarefas agendadas)";
+  return keys.map(k => ({ key:k, ...parseDateKey(k) }))
+    .sort((a,b) => a.date - b.date)
+    .map(({date,hour,key}) => `${DAYS_PT[date.getDay()]} ${date.getDate()}/${date.getMonth()+1} ${hour}:00 — ${calData[key].name} (${calData[key].dur})`)
+    .join("\n");
+}
+
+document.getElementById("send-routine-btn").addEventListener("click", () => {
+  sendAutoEmail("A rotina da Rita", buildRoutineText());
+});
+
+// ── TOGGLES ──────────────────────────────────────
+document.querySelectorAll(".toggle").forEach(t => {
+  t.addEventListener("click", () => {
+    t.classList.toggle("on");
+    const key = t.dataset.key;
+    const on = t.classList.contains("on");
+    const labels = {treino:"Treino",estudo:"Estudo",agua:"Água",noite:"Rotina noturna",mind:"Mindfulness"};
+    toast(`Push "${labels[key]}" ${on?"activado":"desactivado"}`,on?"success":"info");
+  });
+});
+
+// ── REAL BROWSER NOTIFICATIONS ───────────────────
+let scheduledTimers = [];
+
+// ── FORMSPREE — notificações automáticas por email ──
+const EJ_KEY = "calendarioTiagoxRita_formspree_v1";
+
+function loadEjConfig() {
+  try { return JSON.parse(localStorage.getItem(EJ_KEY) || "null"); } catch(e) { return null; }
+}
+function saveEjConfig(cfg) { localStorage.setItem(EJ_KEY, JSON.stringify(cfg)); }
+
+function refreshEjUI() {
+  const cfg = loadEjConfig();
+  const setup = document.getElementById("mail-setup");
+  const connected = document.getElementById("mail-connected");
+  if(cfg && cfg.endpoint && cfg.to) {
+    setup.style.display = "none";
+    connected.style.display = "block";
+    document.getElementById("ej-to-label").textContent = cfg.to;
+    document.getElementById("email-dot").className = "status-dot green";
+    document.getElementById("email-status").innerHTML = `<div class="status-dot green" id="email-dot"></div>Email automático activo`;
+  } else {
+    setup.style.display = "block";
+    connected.style.display = "none";
+    document.getElementById("email-dot").className = "status-dot off";
+    document.getElementById("email-status").innerHTML = `<div class="status-dot off" id="email-dot"></div>Email — offline`;
+  }
+}
+
+function sendAutoEmail(subject, message) {
+  const cfg = loadEjConfig();
+  if(!cfg) return;
+  toast("A enviar...","info");
+  fetch(cfg.endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify({ email: cfg.to, subject: subject, message: message })
+  }).then(async res => {
+    const bodyText = await res.text().catch(()=> "");
+    console.log("Formspree status:", res.status, "resposta:", bodyText);
+    if(res.ok) {
+      let parsed = {};
+      try { parsed = JSON.parse(bodyText); } catch(e) {}
+      if(parsed && parsed.next && parsed.next.includes("confirm")) {
+        toast("Falta confirmar — vê o email do Formspree","warn");
+      } else {
+        toast("Email automático enviado (verifica também o spam)","success");
+      }
+    } else {
+      let msg = "Erro " + res.status;
+      try {
+        const parsed = JSON.parse(bodyText);
+        if(parsed.errors && parsed.errors[0]) msg = parsed.errors[0].message || msg;
+      } catch(e) {}
+      toast("Formspree recusou: " + msg,"warn");
+    }
+  }).catch(err => {
+    toast("Falha de rede ao enviar — vê a consola (F12)","warn");
+    console.error(err);
+  });
+}
+
+document.getElementById("ej-connect-btn").addEventListener("click", () => {
+  const endpoint = document.getElementById("ej-service").value.trim();
+  const to = document.getElementById("ej-to").value.trim();
+  if(!endpoint || !to) { toast("Preenche o endpoint e o email de destino","warn"); return; }
+  if(!endpoint.startsWith("https://formspree.io/f/")) { toast("O endpoint deve começar por https://formspree.io/f/","warn"); return; }
+  saveEjConfig({endpoint, to});
+  refreshEjUI();
+  toast("Formspree ligado com sucesso","success");
+});
+
+document.getElementById("ej-disconnect-btn").addEventListener("click", () => {
+  localStorage.removeItem(EJ_KEY);
+  refreshEjUI();
+  toast("Formspree desligado","info");
+});
+
+refreshEjUI();
+
+function fireNotification(title, body) {
+  if(!("Notification" in window)) { toast("Este browser não suporta notificações","warn"); return; }
+  if(Notification.permission === "granted") {
+    try {
+      // Prefer service worker registration (works better on Android/Chrome, incl. screen locked)
+      if(navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+        navigator.serviceWorker.getRegistration().then(reg => {
+          if(reg) reg.showNotification(title, {body, icon:"", badge:"", tag:"rita-"+Date.now()});
+          else new Notification(title, {body});
+        }).catch(()=> new Notification(title, {body}));
+      } else {
+        new Notification(title, {body});
+      }
+    } catch(e) { new Notification(title, {body}); }
+  }
+}
+
+// Register a tiny inline service worker so notifications can show even
+// when the tab is backgrounded on mobile Chrome/Android (best-effort;
+// iOS Safari and some browsers restrict this without a real PWA install).
+if("serviceWorker" in navigator) {
+  const swCode = `self.addEventListener('notificationclick', e => { e.notification.close(); });`;
+  try {
+    const blob = new Blob([swCode], {type:"application/javascript"});
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl).catch(()=>{});
+  } catch(e) {}
+}
+
+function askForPermission() {
+  if(!("Notification" in window)) { toast("Este browser não suporta notificações","warn"); return; }
+  Notification.requestPermission().then(p => {
+    document.getElementById("perm-banner").style.display = "none";
+    if(p === "granted") {
+      document.getElementById("push-dot").className = "status-dot green";
+      document.getElementById("push-status").innerHTML = `<div class="status-dot green"></div>Push activo`;
+      toast("Notificações activadas neste dispositivo","success");
+      fireNotification("Calendário Tiagox", "Notificações activadas! Vais receber lembretes das tarefas da Rita.");
+    } else if(p === "denied") {
+      document.getElementById("push-dot").className = "status-dot off";
+      document.getElementById("push-status").innerHTML = `<div class="status-dot off"></div>Push bloqueado`;
+      toast("Permissão negada — activa nas definições do browser","warn");
+    } else {
+      toast("Permissão de notificações não concedida","warn");
+    }
+  });
+}
+
+document.getElementById("perm-btn").addEventListener("click", askForPermission);
+document.getElementById("pb-allow").addEventListener("click", askForPermission);
+document.getElementById("pb-dismiss").addEventListener("click", () => {
+  document.getElementById("perm-banner").style.display = "none";
+  toast("Podes activar mais tarde no separador Push","info");
+});
+
+// O próprio projeto pede a permissão assim que a página carrega
+// (mostra um banner com o gesto de utilizador exigido pelos browsers).
+if("Notification" in window) {
+  if(Notification.permission === "default") {
+    setTimeout(() => { document.getElementById("perm-banner").style.display = "flex"; }, 900);
+  } else if(Notification.permission === "granted") {
+    document.getElementById("push-dot").className = "status-dot green";
+    document.getElementById("push-status").innerHTML = `<div class="status-dot green"></div>Push activo`;
+  } else if(Notification.permission === "denied") {
+    document.getElementById("push-dot").className = "status-dot off";
+    document.getElementById("push-status").innerHTML = `<div class="status-dot off"></div>Push bloqueado`;
+  }
+}
+
+document.getElementById("sched-btn").addEventListener("click", () => {
+  if(Notification.permission !== "granted") {
+    toast("Activa primeiro as notificações neste dispositivo","warn");
+    return;
+  }
+  scheduledTimers.forEach(t => clearTimeout(t));
+  scheduledTimers = [];
+
+  const now = new Date();
+  let count = 0;
+
+  Object.keys(calData).forEach(key => {
+    const { date: eventDate, hour: h } = parseDateKey(key);
+    const reminderTime = new Date(eventDate.getTime() - 5 * 60000); // 5 min before
+    const delay = reminderTime.getTime() - now.getTime();
+    if(delay > 0 && delay < 30 * 24 * 60 * 60000) {
+      const task = calData[key];
+      const timer = setTimeout(() => {
+        fireNotification("Daqui a 5 min: " + task.name, `${task.dur} · ${DAYS_PT[eventDate.getDay()]} ${eventDate.getDate()}/${eventDate.getMonth()+1} às ${h}:00`);
+        sendAutoEmail("Daqui a 5 min: " + task.name, `${task.dur} · ${DAYS_PT[eventDate.getDay()]} ${eventDate.getDate()}/${eventDate.getMonth()+1} às ${h}:00 — Calendário Tiagox`);
+      }, delay);
+      scheduledTimers.push(timer);
+      count++;
+    }
+  });
+
+  if(count === 0) {
+    toast("Sem tarefas futuras nesta semana para agendar","warn");
+  } else {
+    toast(`${count} notificações agendadas (5 min antes de cada tarefa)`,"success");
+    fireNotification("Calendário Tiagox", `${count} lembretes agendados para esta semana.`);
+  }
+});
+
+// ── TOAST ────────────────────────────────────────
+function toast(msg, type="info") {
+  const icons = {success:"ti-circle-check",info:"ti-info-circle",warn:"ti-alert-triangle"};
+  const area = document.getElementById("toast-area");
+  const t = document.createElement("div");
+  t.className = `toast ${type}`;
+  t.innerHTML = `<i class="ti ${icons[type]}"></i><span>${msg}</span>`;
+  area.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+// ── CLOCK ────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById("time-display").textContent =
+    now.toLocaleTimeString("pt-PT",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+}
+setInterval(updateClock,1000); updateClock();
+
+// ── INIT ─────────────────────────────────────────
+// ── MENU FLUTUANTE — dropdowns Email / Push ──────
+function toggleDropdown(id) {
+  const dd = document.getElementById(id);
+  const isOpen = dd.classList.contains("open");
+  document.querySelectorAll(".topbar-dropdown").forEach(d => d.classList.remove("open"));
+  if(!isOpen) dd.classList.add("open");
+}
+document.getElementById("mail-btn").addEventListener("click", e => { e.stopPropagation(); toggleDropdown("mail-dropdown"); });
+document.getElementById("notif-btn").addEventListener("click", e => { e.stopPropagation(); toggleDropdown("notif-dropdown"); });
+document.getElementById("profile-btn").addEventListener("click", e => { e.stopPropagation(); toggleDropdown("profile-dropdown"); });
+document.getElementById("cloud-btn").addEventListener("click", e => { e.stopPropagation(); toggleDropdown("cloud-dropdown"); });
+
+// ── PERFIS — dois calendários numa app só ────────
+function applyProfileUI() {
+  const id = getActiveProfile();
+  const p = PROFILES[id];
+  document.getElementById("avatar-badge").textContent = p.initials;
+  document.getElementById("profile-label").textContent = p.label;
+  document.querySelectorAll(".profile-option").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.profile === id);
+  });
+}
+document.querySelectorAll(".profile-option").forEach(btn => {
+  btn.addEventListener("click", () => {
+    setActiveProfile(btn.dataset.profile);
+    calData = loadCalData();
+    applyProfileUI();
+    buildCalendar();
+    refreshEjUI();
+    if(fbDb) subscribeCloudProfile();
+    document.querySelectorAll(".topbar-dropdown").forEach(d => d.classList.remove("open"));
+    toast("Calendário de " + PROFILES[btn.dataset.profile].label,"success");
+  });
+});
+applyProfileUI();
+
+document.addEventListener("click", e => {
+  if(!e.target.closest(".topbar-dropdown") && !e.target.closest(".notif-btn") && !e.target.closest(".profile-switch")) {
+    document.querySelectorAll(".topbar-dropdown").forEach(d => d.classList.remove("open"));
+  }
+});
+
+// ── MOBILE BOTTOM NAV ─────────────────────────────
+function setMobilePanel(name) {
+  document.querySelector(".sidebar").classList.toggle("mobile-active", name==="kanban");
+  document.querySelector(".center").classList.toggle("mobile-active", name==="cal");
+  document.querySelectorAll(".mt-btn").forEach(b => b.classList.toggle("active", b.dataset.mtab===name));
+}
+document.querySelectorAll(".mt-btn").forEach(btn => {
+  btn.addEventListener("click", () => setMobilePanel(btn.dataset.mtab));
+});
+if(window.matchMedia("(max-width: 860px)").matches) setMobilePanel("kanban");
+window.addEventListener("resize", () => {
+  if(window.matchMedia("(max-width: 860px)").matches) {
+    if(!document.querySelector(".sidebar.mobile-active, .center.mobile-active")) {
+      setMobilePanel("kanban");
+    }
+  } else {
+    document.querySelector(".sidebar").classList.remove("mobile-active");
+    document.querySelector(".center").classList.remove("mobile-active");
+  }
+});
+
+buildKanban();
+buildCalendar();
+</script>
+</body>
+</html>
